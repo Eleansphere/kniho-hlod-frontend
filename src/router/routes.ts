@@ -8,7 +8,7 @@ export const routes = [
                 path: '',
                 name: 'Home',
                 component: () => import('@/pages/HomePage.vue'),
-              meta: { title: 'Home', icon: 'home',badge: null},
+                meta: { title: 'Home', icon: 'home', badge: null }
             },
             {
                 path: 'notifications',
@@ -30,26 +30,26 @@ export const routes = [
                     badge: null
                 }
             },
-          {
-            path: 'books',
-            name: 'Books',
-            component: () => import('@/pages/BooksPage.vue'),
-            meta: {
-              title: 'Knihy',
-              icon: 'pi pi-book',
-              badge: 3
+            {
+                path: 'books',
+                name: 'Books',
+                component: () => import('@/pages/BooksPage.vue'),
+                meta: {
+                    title: 'Knihy',
+                    icon: 'pi pi-book',
+                    badge: 3
+                }
+            },
+            {
+                path: 'loans',
+                name: 'Loans',
+                component: () => import('@/pages/LoansPage.vue'),
+                meta: {
+                    title: 'Výpujčky',
+                    icon: 'pi pi-address-book',
+                    badge: 2
+                }
             }
-          },
-          {
-            path: 'loans',
-            name: 'Loans',
-            component: () => import('@/pages/LoansPage.vue'),
-            meta: {
-              title: 'Výpujčky',
-              icon: 'pi pi-address-book',
-              badge: 2
-            }
-          }
         ]
     },
     {

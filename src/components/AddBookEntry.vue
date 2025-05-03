@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form, type FormSubmitEvent } from '@primevue/forms';
-import {onMounted, ref} from 'vue';
-import {useUserStore} from "@/stores/userStore";
+import { onMounted, ref } from 'vue';
+import { useUserStore } from '@/stores/userStore';
 
 const isProcessing = ref<boolean>();
 const dateValue = ref();
@@ -17,11 +17,9 @@ const onFormSubmit = ({ states }: FormSubmitEvent) => {
     console.log(newBookLoan);
 };
 
-
 onMounted(async () => {
-  await useUserStore().fetchUsers()
-})
-
+    await useUserStore().fetchEntities();
+});
 </script>
 
 <template>

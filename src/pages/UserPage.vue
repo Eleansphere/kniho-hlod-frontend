@@ -3,7 +3,6 @@ import { useUserStore } from '@/stores/userStore';
 import { onMounted, reactive, ref } from 'vue';
 import type { User } from '@/types/EntityTypes';
 
-
 const isProcessing = ref(false);
 
 const userStore = useUserStore();
@@ -12,13 +11,12 @@ const form = reactive({
     username: '',
     password: '',
     email: '',
-    role:''
+    role: ''
 });
 
 async function saveUser(userData: User) {
     isProcessing.value = true;
     try {
-
         await userStore.saveEntity(userData);
         console.log('Ukladam', userData);
     } catch (error) {
@@ -29,12 +27,11 @@ async function saveUser(userData: User) {
 }
 
 async function handleDelete(userId: string) {
-  try{
-    await userStore.deleteEntity(userId);
-  }
-  catch (e) {
-    console.log(e)
-  }
+    try {
+        await userStore.deleteEntity(userId);
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 onMounted(async () => {
@@ -60,20 +57,20 @@ onMounted(async () => {
         </FloatLabel>
 
         <Button label="Uložit" @click="saveUser(form)" :loading="isProcessing" />
-    <div class="flex flex-col gap-2">
-
-      <ul v-for="user in userStore.entities" :key="user.id">
-          <li class="grid grid-cols-3">
-            <span>{{user.username}}</span>
-            <span>{{user.email}}</span>
-            <Button size="small" rounded icon="pi pi-trash" severity="danger"
-
-                    @click="handleDelete(user.id)" />
-          </li>
-
-      </ul>
-
-
-    </div>
+        <div class="flex flex-col gap-2">
+            <ul v-for="user in userStore.entities" :key="user.id">
+                <li class="grid grid-cols-3">
+                    <span>{{ user.username }}</span>
+                    <span>{{ user.email }}</span>
+                    <Button
+                        size="small"
+                        rounded
+                        icon="pi pi-trash"
+                        severity="danger"
+                        @click="handleDelete(user.id)"
+                    />
+                </li>
+            </ul>
+        </div>
     </div>
 </template>

@@ -1,4 +1,3 @@
-// eslint-disable-next-line vue/multi-word-component-names
 <script setup lang="ts">
 import type { Entity } from '@/types/EntityTypes';
 import type { TableColumnDefinition } from '@/types/tableTypes';
@@ -7,7 +6,7 @@ defineProps<{
     columns: Array<TableColumnDefinition>;
     items: Array<Entity>;
     displayDetailOnly?: boolean;
-    handleDetail?: (data?: E) => void;
+    handleDetail?: (data?: Entity) => void;
 }>();
 </script>
 
