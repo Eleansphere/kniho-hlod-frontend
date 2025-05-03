@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { onMounted, type Component } from 'vue';
-import BooksPage from './BooksPage.vue';
-import LoansPage from './LoansPage.vue';
-import OverviewPage from './OverviewPage.vue';
-import AdministratorPage from './AdministratorPage.vue';
-import MyAccountPage from './MyAccountPage.vue';
+import BooksPage from '../components/tabs/Books.vue';
+import LoansPage from '../components/tabs/Loans.vue';
+import OverviewPage from '../components/tabs/Overview.vue';
+import AdministratorPage from '../components/tabs/Administrator.vue';
+import MyAccountPage from '../components/tabs/MyAccount.vue';
 import { authorizationStore } from '@/stores/authorizationStore';
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/entities/userStore';
 
 interface MenuTabContent {
     label: string;
     icon: string;
     content: Component | null;
-    props: Record<string, null>;
+    props: Record<string, string | null>;
     value: number;
     roles: Array<string>;
 }
 
 const { loggedUser, actualUsername } = authorizationStore();
-console.log('Aktualni user', actualUsername.value);
+//console.log('Aktualni user', actualUsername.value);
 const menuTabs: Array<MenuTabContent> = [
     {
         label: 'Přehled',
@@ -31,7 +31,7 @@ const menuTabs: Array<MenuTabContent> = [
     {
         label: 'Výpujčky',
         content: LoansPage,
-        props: {},
+        props: { userId: loggedUser?.id },
         icon: 'pi pi-address-book',
         value: 1,
         roles: ['admin', 'user']
@@ -89,7 +89,6 @@ onMounted(() => {
                 </TabList>
                 <TabPanels>
                     <TabPanel v-for="tab in menuTabs" :key="tab.label" :value="tab.value">
-                        <!-- Pokud existuje komponenta, zobraz ji -->
                         <component v-if="tab.content" :is="tab.content" v-bind="tab.props" />
                         <span v-else>Obsah zatím není dostupný.</span>
                     </TabPanel>

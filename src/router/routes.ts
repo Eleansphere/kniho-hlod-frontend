@@ -11,29 +11,9 @@ export const routes = [
                 meta: { title: 'Home', icon: 'home', badge: null }
             },
             {
-                path: 'notifications',
-                name: 'Notifications',
-                component: () => import('@/components/AddBookEntry.vue'),
-                meta: {
-                    title: 'Notifikace',
-                    icon: 'pi pi-address-book',
-                    badge: 3
-                }
-            },
-            {
-                path: 'user',
-                name: 'User',
-                component: () => import('@/pages/UserPage.vue'),
-                meta: {
-                    title: 'Uživatel',
-                    icon: 'pi pi-user',
-                    badge: null
-                }
-            },
-            {
                 path: 'books',
                 name: 'Books',
-                component: () => import('@/pages/BooksPage.vue'),
+                component: () => import('@/components/tabs/Books.vue'),
                 meta: {
                     title: 'Knihy',
                     icon: 'pi pi-book',
@@ -43,7 +23,7 @@ export const routes = [
             {
                 path: 'loans',
                 name: 'Loans',
-                component: () => import('@/pages/LoansPage.vue'),
+                component: () => import('@/components/tabs/Loans.vue'),
                 meta: {
                     title: 'Výpujčky',
                     icon: 'pi pi-address-book',

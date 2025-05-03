@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { API_ENDPOINTS } from './apiEndPoints';
 import router from '@/router';
-import { useUserStore } from './userStore';
+import { useUserStore } from './entities/userStore';
 import type { User } from '@/types/EntityTypes';
 
 export const authorizationStore = defineStore('authorization', () => {

@@ -7,12 +7,14 @@ const dialogRef = inject<any>('dialogRef');
 import DialogHelper from '@/components/DialogHelper.vue';
 import { useDialog } from 'primevue/usedialog';
 import type { Component } from 'vue';
-import type { ComponentProps } from 'vue-component-type-helpers';
 import type { DialogProps } from 'primevue/dialog';
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions';
+import type { ComponentProps } from 'vue-component-type-helpers';
 
 export function usePreferredDialog() {
     const d = useDialog();
+
+    let dialogRef: any = null;
 
     return {
         open<C extends Component>(
@@ -21,7 +23,7 @@ export function usePreferredDialog() {
             dialog: DialogProps,
             onClose?: DynamicDialogOptions['onClose']
         ) {
-            return d.open(DialogHelper, {
+            dialogRef = d.open(DialogHelper, {
                 onClose,
                 props: {
                     style: {
@@ -33,6 +35,13 @@ export function usePreferredDialog() {
                 },
                 data: { is: markRaw(is), props }
             });
+
+            return dialogRef;
+        },
+        close() {
+            if (dialogRef) {
+                dialogRef.close();
+            }
         }
     };
 }
