@@ -6,6 +6,9 @@ import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { useLoanStore } from '@/stores/entities/loanStore';
 import { loanFormSchema } from '@/schemas/LoanFormSchema';
+import type { FormDefinition } from '../form/FormTypes';
+import { useBookStore } from '@/stores/entities/bookStore';
+import { authorizationStore } from '@/stores/authorizationStore';
 
 const props = defineProps<{
     userId: string;
@@ -28,11 +31,38 @@ const dialog = usePreferredDialog();
 const currentLoan = ref<Loan>(new Loan());
 const isSubmitting = ref(false);
 
+const availableBooks = computed(() => {
+    return useBookStore()
+        .entities.filter((book) => book.owner_id === authorizationStore().loggedUser?.id)
+        .map((book) => ({
+            label: book.title,
+            value: book.id
+        }));
+});
+
+//pridat do knizek flag vypujceno?? pak filtrovat jen nevypujcene
+// na linkovat entity? k loan user a book? atd...
+
+const editedLoanFormSchema: FormDefinition<Loan> = {
+    ...loanFormSchema,
+    fields: [
+        {
+            name: 'book_id',
+            label: 'Kniha',
+            type: 'select',
+            required: true,
+            placeholder: 'Vyber knihu',
+            options: availableBooks.value
+        },
+        ...loanFormSchema.fields
+    ]
+};
+
 function openLoanDialog(loanData: Loan) {
     dialog.open(
         GenericForm,
         {
-            definition: loanFormSchema,
+            definition: editedLoanFormSchema,
             modelValue: loanData,
             mode: loanData ? 'view' : 'create',
             submitting: isSubmitting.value,
@@ -67,6 +97,7 @@ async function handleSubmit(loanData: Loan) {
 
 onMounted(() => {
     store.fetchEntities();
+    useBookStore().fetchEntities;
 });
 </script>
 
