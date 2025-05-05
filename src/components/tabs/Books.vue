@@ -2,7 +2,7 @@
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { useBookStore } from '@/stores/entities/bookStore';
 import { Book } from '@/types/EntityTypes';
-import type { TableColumnDefinition } from '@/types/tableTypes';
+import type { TableColumnDefinition } from '@/components/table/types';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { bookFormSchema } from '../../schemas/BookFormSchema';

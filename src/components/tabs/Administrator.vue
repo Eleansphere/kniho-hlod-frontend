@@ -2,7 +2,7 @@
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { useUserStore } from '@/stores/entities/userStore';
 import { User } from '@/types/EntityTypes';
-import type { TableColumnDefinition } from '@/types/tableTypes';
+import type { TableColumnDefinition } from '@/components/table/types';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { userFormSchema } from '@/schemas/UserFormSchema';

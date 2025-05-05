@@ -1,5 +1,16 @@
-import { createEntityStore } from '@/stores/entityStore';
+import { defineEntityStore } from '@/stores/entityStore';
 import type { User } from '@/types/EntityTypes';
 import { API_ENDPOINTS } from '@/stores/apiEndPoints';
+import type { CreateExtendedEntity } from '@/types/storeDefinition';
 
-export const useUserStore = createEntityStore<User>('userStore', API_ENDPOINTS.users);
+type ExtendUser = {};
+
+export type ExtendedUser = CreateExtendedEntity<User, ExtendUser>;
+
+export const useUserStore = defineEntityStore<User, ExtendUser>(
+    'userStore',
+    {},
+    {
+        apiUrl: API_ENDPOINTS.users
+    }
+);

@@ -1,29 +1,30 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { Loan } from '@/types/EntityTypes';
-import type { TableColumnDefinition } from '@/types/tableTypes';
+import type { TableColumnDefinition } from '@/components/table/types';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
-import { useLoanStore } from '@/stores/entities/loanStore';
+import type { ExtendedLoan } from '@/stores/entities/loanStore';
 import { loanFormSchema } from '@/schemas/LoanFormSchema';
 import type { FormDefinition } from '../form/FormTypes';
 import { useBookStore } from '@/stores/entities/bookStore';
 import { authorizationStore } from '@/stores/authorizationStore';
+import { useLoanStore } from '@/stores/entities/loanStore';
 
 const props = defineProps<{
     userId: string;
 }>();
 
 const tableColumns: Array<TableColumnDefinition> = [
-    { field: 'book_id', header: 'Kniha' },
+    { field: ['bookEntity', 'title'], header: 'Kniha' },
     { field: 'borrower', header: 'Vypůjčil si' },
-    { field: 'loan_date', header: 'Datum vypůjčení' },
-    { field: 'return_date', header: 'Datum vrácení' }
+    { field: 'loan_date', header: 'Datum vypůjčení', type: 'date' },
+    { field: 'return_date', header: 'Datum vrácení', type: 'date' }
 ];
 
 const store = useLoanStore();
-const availableLoans = computed<Array<Loan>>(() => {
-    return store.entities;
+const availableLoans = computed<Array<ExtendedLoan>>(() => {
+    return store.entities.filter((loan) => loan.owner_id === authorizationStore().loggedUser?.id);
 });
 
 const dialog = usePreferredDialog();
@@ -40,6 +41,7 @@ const availableBooks = computed(() => {
         }));
 });
 
+console.log(availableLoans.value);
 //pridat do knizek flag vypujceno?? pak filtrovat jen nevypujcene
 // na linkovat entity? k loan user a book? atd...
 
