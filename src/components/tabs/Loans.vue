@@ -16,8 +16,8 @@ const props = defineProps<{
 }>();
 
 const tableColumns: Array<TableColumnDefinition> = [
-    { field: ['bookEntity', 'title'], header: 'Kniha' },
-    { field: 'borrower', header: 'Vypůjčil si' },
+    { field: ['bookEntity', 'title'], header: 'Kniha', type: 'text' },
+    { field: 'borrower', header: 'Vypůjčil si', type: 'text' },
     { field: 'loan_date', header: 'Datum vypůjčení', type: 'date' },
     { field: 'return_date', header: 'Datum vrácení', type: 'date' }
 ];
@@ -41,7 +41,6 @@ const availableBooks = computed(() => {
         }));
 });
 
-console.log(availableLoans.value);
 //pridat do knizek flag vypujceno?? pak filtrovat jen nevypujcene
 // na linkovat entity? k loan user a book? atd...
 

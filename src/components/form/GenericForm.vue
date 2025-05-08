@@ -33,7 +33,6 @@ function handleFieldInput(fieldName: string) {
     emit('update:modelValue', { ...state.model });
 }
 
-// Sledování změn ve vstupním modelu
 watch(
     () => props.modelValue,
     (newVal) => {
@@ -44,7 +43,6 @@ watch(
     { deep: true }
 );
 
-// Sledování stavu odesílání
 watch(
     () => props.submitting,
     (submitting) => {
@@ -175,6 +173,7 @@ const isViewOnly = computed(() => props.mode === 'view');
                             :id="field.name"
                             v-model="state.model[field.name]"
                             variant="filled"
+                            dateFormat="dd.mm.yy"
                             :placeholder="field.placeholder"
                             :disabled="isViewOnly || field.disabled?.(state.model)"
                             :invalid="isFieldInvalid(field.name)"

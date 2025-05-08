@@ -8,9 +8,13 @@ import GenericForm from '../form/GenericForm.vue';
 import { userFormSchema } from '@/schemas/UserFormSchema';
 
 const tableColumns: Array<TableColumnDefinition> = [
-    { field: 'username', header: 'Přihlašovací jméno' },
-    { field: 'email', header: 'Email' },
-    { field: 'role', header: 'Role' }
+    {
+        field: 'username',
+        header: 'Přihlašovací jméno',
+        type: 'text'
+    },
+    { field: 'email', header: 'Email', type: 'text' },
+    { field: 'role', header: 'Role', type: 'text' }
 ];
 
 const store = useUserStore();

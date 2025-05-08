@@ -12,18 +12,18 @@ const props = defineProps<{
 }>();
 
 const tableColumns: Array<TableColumnDefinition> = [
-    { field: 'author', header: 'Autor' },
-    { field: 'title', header: 'Název knihy' },
-    { field: 'genre', header: 'Žánr', formatter: formatGenre },
-    { field: 'isAvailable', header: 'Dostupná', formatter: (val) => (val ? 'Ano' : 'Ne') }
+    { field: 'author', header: 'Autor', type: 'text' },
+    { field: 'title', header: 'Název knihy', type: 'text' },
+    { field: 'genre', header: 'Žánr', type: 'text' },
+    { field: 'isAvailable', header: 'Dostupná', type: 'binary' }
 ];
 
-function formatGenre(value) {
-    const option = bookFormSchema.fields
-        .find((f) => f.name === 'genre')
-        ?.options?.find((o) => o.value === value);
-    return option?.label || value;
-}
+// function formatGenre(value) {
+//     const option = bookFormSchema.fields
+//         .find((f) => f.name === 'genre')
+//         ?.options?.find((o) => o.value === value);
+//     return option?.label || value;
+// }
 
 const store = useBookStore();
 const availableBooks = computed<Array<Book>>(() => {

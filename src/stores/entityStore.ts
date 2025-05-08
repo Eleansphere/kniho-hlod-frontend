@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { getEntityClass } from './entityClassRegistry';
 import { authorizationStore } from './authorizationStore';
 import type {
     BaseEntity,
@@ -8,7 +9,6 @@ import type {
     EntityStoreConfig
 } from '@/types/storeDefinition';
 
-// Function to define an entity store with extensions
 export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
     storeName: string,
     extensions: { [K in keyof TExtend]: EntityExtension<TEntity, TExtend[K]> } = {} as any,
@@ -19,14 +19,10 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
         const error = ref<string | null>(null);
         const isLoading = ref(false);
 
-        // Určení API URL na základě konfigurace nebo výchozího formátu
         const apiUrl = config?.apiUrl || `/api/${config?.pluralName || storeName.toLowerCase()}`;
 
-        // Aplikuje rozšíření na entitu
         function extendEntity(entity: TEntity): CreateExtendedEntity<TEntity, TExtend> {
             const extended = { ...entity } as CreateExtendedEntity<TEntity, TExtend>;
-
-            // Aplikace každé rozšiřující funkce na entitu
             for (const [key, extendFn] of Object.entries(extensions)) {
                 try {
                     (extended as any)[key] = (extendFn as any)(entity);
@@ -34,47 +30,44 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
                     console.error(`Error extending entity ${entity.id} with ${key}:`, err);
                 }
             }
-
             return extended;
         }
 
-        // Computed property vracející všechny entity už jako rozšířené
+        const transformEntity = (data: any): TEntity => {
+            const ClassRef = getEntityClass<TEntity>(storeName);
+            if (ClassRef) {
+                const instance = new ClassRef();
+                for (const key in data) {
+                    const value = data[key];
+                    (instance as any)[key] =
+                        value && typeof value === 'string' && key.endsWith('_date')
+                            ? new Date(value)
+                            : value;
+                }
+                return instance;
+            }
+            return data;
+        };
+
         const entities = computed<Array<CreateExtendedEntity<TEntity, TExtend>>>(() => {
             return Array.from(rawEntitiesMap.value.values()).map((entity) => extendEntity(entity));
         });
 
-        // Get a fresh token when needed
         const getToken = () => authorizationStore().getToken();
+        const getHeaders = () => ({
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${getToken()}`,
+            ...(config?.headers || {})
+        });
 
-        // Získání hlaviček pro API požadavky
-        const getHeaders = () => {
-            const defaultHeaders: Record<string, string> = {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${getToken()}`
-            };
-
-            return {
-                ...defaultHeaders,
-                ...(config?.headers || {})
-            };
-        };
-
-        // Fetch all entities
         async function fetchEntities() {
             error.value = null;
             isLoading.value = true;
-
             try {
-                const response = await fetch(apiUrl, {
-                    headers: getHeaders()
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data: TEntity[] = await response.json();
-                rawEntitiesMap.value = new Map(data.map((entity) => [entity.id, entity]));
+                const response = await fetch(apiUrl, { headers: getHeaders() });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data: TEntity[] = (await response.json()).map(transformEntity);
+                rawEntitiesMap.value = new Map(data.map((e) => [e.id, e]));
             } catch (err) {
                 error.value = (err as Error).message;
             } finally {
@@ -82,24 +75,18 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
             }
         }
 
-        // Get a single entity by ID
         async function getEntity(
-            entityId: string
+            id: string
         ): Promise<CreateExtendedEntity<TEntity, TExtend> | null> {
             error.value = null;
             isLoading.value = true;
-
             try {
-                const response = await fetch(`${apiUrl}/${entityId}`, {
+                const response = await fetch(`${apiUrl}/${id}`, {
                     method: 'GET',
                     headers: getHeaders()
                 });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const entity: TEntity = await response.json();
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const entity: TEntity = transformEntity(await response.json());
                 rawEntitiesMap.value.set(entity.id, entity);
                 return extendEntity(entity);
             } catch (err) {
@@ -110,18 +97,15 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
             }
         }
 
-        // Get raw entity without extensions
-        function getRawEntity(entityId: string): TEntity | null {
-            return rawEntitiesMap.value.get(entityId);
+        function getRawEntity(id: string): TEntity | null {
+            return rawEntitiesMap.value.get(id) ?? null;
         }
 
-        // Create or update an entity
         async function saveEntity(
             entityData: TEntity
         ): Promise<CreateExtendedEntity<TEntity, TExtend> | undefined> {
             error.value = null;
             isLoading.value = true;
-
             try {
                 const method = entityData.id ? 'PUT' : 'POST';
                 const url = entityData.id ? `${apiUrl}/${entityData.id}` : apiUrl;
@@ -132,11 +116,8 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
                     body: JSON.stringify(entityData)
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const savedEntity: TEntity = await response.json();
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const savedEntity: TEntity = transformEntity(await response.json());
                 rawEntitiesMap.value.set(savedEntity.id, savedEntity);
                 return extendEntity(savedEntity);
             } catch (err) {
@@ -147,22 +128,16 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
             }
         }
 
-        // Delete an entity
-        async function deleteEntity(entityId: string) {
+        async function deleteEntity(id: string) {
             error.value = null;
             isLoading.value = true;
-
             try {
-                const response = await fetch(`${apiUrl}/${entityId}`, {
+                const response = await fetch(`${apiUrl}/${id}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                rawEntitiesMap.value.delete(entityId);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                rawEntitiesMap.value.delete(id);
                 return true;
             } catch (err) {
                 error.value = (err as Error).message;
@@ -181,20 +156,11 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
             getRawEntity,
             saveEntity,
             deleteEntity,
-            // Helper to get or fetch an entity
-            getOrFetchEntity: async (
-                id: string
-            ): Promise<CreateExtendedEntity<TEntity, TExtend> | null> => {
-                const cachedEntity = rawEntitiesMap.value.get(id);
-                if (cachedEntity) return extendEntity(cachedEntity);
-                return await getEntity(id);
+            getOrFetchEntity: async (id: string) => {
+                const cached = rawEntitiesMap.value.get(id);
+                return cached ? extendEntity(cached) : await getEntity(id);
             },
-            // Refresh a single entity from API
-            refreshEntity: async (
-                id: string
-            ): Promise<CreateExtendedEntity<TEntity, TExtend> | null> => {
-                return await getEntity(id);
-            }
+            refreshEntity: async (id: string) => await getEntity(id)
         };
     });
 }
