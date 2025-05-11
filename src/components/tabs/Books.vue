@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
-import { useBookStore } from '@/stores/entities/bookStore';
+import { useBookStore, type ExtendedBook } from '@/stores/entities/bookStore';
 import { Book } from '@/types/EntityTypes';
 import type { TableColumnDefinition } from '@/components/table/types';
 import { computed, onMounted, ref } from 'vue';
@@ -14,7 +14,8 @@ const props = defineProps<{
 const tableColumns: Array<TableColumnDefinition> = [
     { field: 'author', header: 'Autor', type: 'text' },
     { field: 'title', header: 'Název knihy', type: 'text' },
-    { field: 'genre', header: 'Žánr', type: 'text' },
+    { field: 'description', header: 'Popis', type: 'text' },
+    { field: 'publicationYear', header: 'Rok vydání', type: 'number' },
     { field: 'isAvailable', header: 'Dostupná', type: 'binary' }
 ];
 
@@ -26,8 +27,8 @@ const tableColumns: Array<TableColumnDefinition> = [
 // }
 
 const store = useBookStore();
-const availableBooks = computed<Array<Book>>(() => {
-    return store.entities.filter((book) => book.owner_id === props.userId);
+const availableBooks = computed<Array<ExtendedBook>>(() => {
+    return store.entities.filter((book) => book.ownerId === props.userId);
 });
 
 const dialog = usePreferredDialog();
@@ -59,8 +60,8 @@ async function handleSubmit(bookData: Book) {
         isSubmitting.value = true;
 
         const bookToSave = { ...bookData };
-        bookToSave.owner_id = props.userId;
-
+        bookToSave.ownerId = props.userId;
+        console.log('Ukládám knihu:', bookToSave);
         await store.saveEntity(bookToSave);
 
         dialog.close();

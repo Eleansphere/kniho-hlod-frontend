@@ -16,10 +16,12 @@ export const useLoanStore = defineEntityStore<Loan, ExtendLoan>(
     'loanStore',
     {
         userEntity(target) {
-            return useUserStore().entities.find((u: User) => u.id === target.owner_id) ?? null;
+            const userStore = useUserStore();
+            return userStore.getRawEntity(target.ownerId) ?? null;
         },
         bookEntity(target) {
-            return useBookStore().entities.find((b: Book) => b.id === target.book_id) ?? null;
+            const bookStore = useBookStore();
+            return bookStore.getRawEntity(target.bookId) ?? null;
         }
     },
     {

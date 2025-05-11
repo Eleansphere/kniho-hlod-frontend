@@ -2,6 +2,7 @@
 import { useFormState } from '@/composables/useFormState';
 import type { FormDefinition } from '@/components/form/FormTypes';
 import { computed, watch } from 'vue';
+import { DatePicker } from 'primevue';
 
 const props = defineProps<{
     definition: FormDefinition<any>;
@@ -157,6 +158,7 @@ const isViewOnly = computed(() => props.mode === 'view');
                             v-model="state.model[field.name]"
                             :disabled="isViewOnly || field.disabled?.(state.model)"
                             @change="handleFieldInput(field.name)"
+                            binary
                         />
                         <label :for="field.name">{{ field.label }}</label>
                     </div>
@@ -169,7 +171,7 @@ const isViewOnly = computed(() => props.mode === 'view');
                 <!-- Date input -->
                 <template v-else-if="field.type === 'date'">
                     <IftaLabel>
-                        <Calendar
+                        <DatePicker
                             :id="field.name"
                             v-model="state.model[field.name]"
                             variant="filled"
@@ -179,6 +181,8 @@ const isViewOnly = computed(() => props.mode === 'view');
                             :invalid="isFieldInvalid(field.name)"
                             @date-select="handleFieldInput(field.name)"
                             fluid
+                            show-icon
+                            icon-display="input"
                         />
                         <label :for="field.name">{{ field.label }}</label>
                     </IftaLabel>

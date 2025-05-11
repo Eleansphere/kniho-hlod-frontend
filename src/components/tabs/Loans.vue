@@ -2,7 +2,7 @@
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { Loan } from '@/types/EntityTypes';
 import type { TableColumnDefinition } from '@/components/table/types';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import type { ExtendedLoan } from '@/stores/entities/loanStore';
 import { loanFormSchema } from '@/schemas/LoanFormSchema';
@@ -18,13 +18,13 @@ const props = defineProps<{
 const tableColumns: Array<TableColumnDefinition> = [
     { field: ['bookEntity', 'title'], header: 'Kniha', type: 'text' },
     { field: 'borrower', header: 'Vypůjčil si', type: 'text' },
-    { field: 'loan_date', header: 'Datum vypůjčení', type: 'date' },
-    { field: 'return_date', header: 'Datum vrácení', type: 'date' }
+    { field: 'loanDate', header: 'Datum vypůjčení', type: 'date' },
+    { field: 'returnDate', header: 'Datum vrácení', type: 'date' }
 ];
 
 const store = useLoanStore();
 const availableLoans = computed<Array<ExtendedLoan>>(() => {
-    return store.entities.filter((loan) => loan.owner_id === authorizationStore().loggedUser?.id);
+    return store.entities.filter((loan) => loan.ownerId === authorizationStore().loggedUser?.id);
 });
 
 const dialog = usePreferredDialog();
@@ -34,21 +34,18 @@ const isSubmitting = ref(false);
 
 const availableBooks = computed(() => {
     return useBookStore()
-        .entities.filter((book) => book.owner_id === authorizationStore().loggedUser?.id)
+        .entities.filter((book) => book.ownerId === authorizationStore().loggedUser?.id)
         .map((book) => ({
             label: book.title,
             value: book.id
         }));
 });
 
-//pridat do knizek flag vypujceno?? pak filtrovat jen nevypujcene
-// na linkovat entity? k loan user a book? atd...
-
 const editedLoanFormSchema: FormDefinition<Loan> = {
     ...loanFormSchema,
     fields: [
         {
-            name: 'book_id',
+            name: 'bookId',
             label: 'Kniha',
             type: 'select',
             required: true,
@@ -83,7 +80,7 @@ function openLoanDialog(loanData: Loan) {
 
 async function handleSubmit(loanData: Loan) {
     const loanToSave = { ...loanData };
-    loanToSave.owner_id = props.userId;
+    loanToSave.ownerId = props.userId;
 
     try {
         await store.saveEntity(loanToSave);
@@ -95,11 +92,6 @@ async function handleSubmit(loanData: Loan) {
         console.error(error);
     }
 }
-
-onMounted(() => {
-    store.fetchEntities();
-    useBookStore().fetchEntities;
-});
 </script>
 
 <template>

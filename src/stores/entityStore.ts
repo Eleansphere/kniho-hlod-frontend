@@ -50,7 +50,9 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
         };
 
         const entities = computed<Array<CreateExtendedEntity<TEntity, TExtend>>>(() => {
-            return Array.from(rawEntitiesMap.value.values()).map((entity) => extendEntity(entity));
+            return Array.from(rawEntitiesMap.value.values()).map((entity) =>
+                extendEntity(entity as TEntity)
+            );
         });
 
         const getToken = () => authorizationStore().getToken();

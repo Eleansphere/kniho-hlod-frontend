@@ -4,6 +4,8 @@ import { API_ENDPOINTS } from './apiEndPoints';
 import router from '@/router';
 import { useUserStore } from './entities/userStore';
 import type { User } from '@/types/EntityTypes';
+import { useLoanStore } from './entities/loanStore';
+import { useBookStore } from './entities/bookStore';
 
 export const authorizationStore = defineStore('authorization', () => {
     const apiUrl = API_ENDPOINTS.userLogin;
@@ -27,6 +29,12 @@ export const authorizationStore = defineStore('authorization', () => {
             } else {
                 //            tokenKey.value = userData.token;
                 //          setToken(userData.token);
+                //zatim load dat tady, nez neco vymyslime
+                await Promise.all([
+                    useUserStore().fetchEntities(),
+                    useBookStore().fetchEntities(),
+                    useLoanStore().fetchEntities()
+                ]);
                 router.push('/');
                 actualUsername.value = userCredentials.email;
                 console.log(userCredentials);

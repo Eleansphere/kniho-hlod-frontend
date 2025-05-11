@@ -13,41 +13,38 @@ export function useFormState<T extends Record<string, any>>(
         isValid: false
     });
 
-    // Validace hodnoty jednoho pole
     function validateField(fieldName: keyof T & string) {
         const field = definition.fields.find((f) => f.name === fieldName);
         if (!field || !field.validators) {
-            state.errors[fieldName] = null;
+            (state.errors as Record<keyof T, string | null>)[fieldName] = null;
             return true;
         }
 
-        const value = state.model[fieldName];
+        const value = (state.model as T)[fieldName];
 
-        // Kontrola povinného pole
         if (field.required && (value === undefined || value === null || value === '')) {
-            state.errors[fieldName] = `Pole ${field.label} je povinné`;
+            (state.errors as Record<keyof T, string | null>)[fieldName] =
+                `Pole ${field.label} je povinné`;
             return false;
         }
 
-        // Aplikace validátorů
         for (const validator of field.validators) {
             const error = validator(value);
             if (error) {
-                state.errors[fieldName] = error;
+                (state.errors as Record<keyof T, string | null>)[fieldName] = error;
                 return false;
             }
         }
 
-        state.errors[fieldName] = null;
+        (state.errors as Record<keyof T, string | null>)[fieldName] = null;
         return true;
     }
 
-    // Validace celého formuláře
     function validateForm() {
         let isValid = true;
 
         for (const field of definition.fields) {
-            state.touched[field.name] = true;
+            (state.touched as Partial<Record<keyof T, boolean>>)[field.name] = true;
             const fieldIsValid = validateField(field.name);
             isValid = isValid && fieldIsValid;
         }
@@ -58,24 +55,22 @@ export function useFormState<T extends Record<string, any>>(
 
     // Označení pole jako "touched" při změně
     function touchField(fieldName: keyof T & string) {
-        state.touched[fieldName] = true;
+        (state.touched as Partial<Record<keyof T, boolean>>)[fieldName] = true;
         validateField(fieldName);
     }
 
-    // Reset formuláře
     function resetForm(newModel?: T) {
-        Object.assign(state.model, newModel || initialModel);
-        state.errors = {};
-        state.touched = {};
+        Object.assign(state.model as Record<string, any>, { ...(newModel || initialModel) });
+        state.errors = {} as Partial<Record<keyof T, string>>;
+        state.touched = {} as Partial<Record<keyof T, boolean>>;
         state.isSubmitting = false;
     }
 
-    // Sledování závislostí mezi poli
     for (const field of definition.fields) {
         if (field.dependsOn && field.dependsOn.length) {
             const deps = field.dependsOn;
             watch(
-                () => deps.map((dep) => state.model[dep]),
+                () => deps.map((dep) => (state.model as T)[dep]),
                 () => {
                     validateField(field.name);
                 }
@@ -84,7 +79,10 @@ export function useFormState<T extends Record<string, any>>(
     }
 
     const isFieldInvalid = computed(() => (fieldName: keyof T & string) => {
-        return !!state.errors[fieldName] && !!state.touched[fieldName];
+        return (
+            !!(state.errors as Partial<Record<keyof T, string>>)[fieldName] &&
+            !!(state.touched as Partial<Record<keyof T, boolean>>)[fieldName]
+        );
     });
 
     return {

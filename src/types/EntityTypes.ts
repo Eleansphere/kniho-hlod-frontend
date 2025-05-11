@@ -22,33 +22,39 @@ export interface LoggedUser {
 export interface BookAttributes {
     id?: string;
     title: string;
-    author: string;
-    owner_id: string;
+    author?: string;
+    description?: string;
+    publicationYear?: number;
+    isAvailable: boolean;
+    ownerId: string;
 }
 
 export class Book implements BookAttributes {
     public id!: string;
     public title!: string;
     public author!: string;
-    public owner_id!: string;
+    public description!: string;
+    public publicationYear!: number;
+    public isAvailable!: boolean;
+    public ownerId!: string;
 }
 
 export interface LoanAttributes {
     id?: string;
-    book_id: string;
     borrower: string;
-    loan_date: Date;
-    return_date: Date;
-    owner_id: string;
+    loanDate: Date;
+    returnDate?: Date;
+    bookId: string;
+    ownerId: string;
 }
 
 export class Loan implements LoanAttributes {
     public id!: string;
-    public book_id!: string;
     public borrower!: string;
-    public loan_date!: Date;
-    public return_date!: Date;
-    public owner_id!: string;
+    public loanDate!: Date;
+    public returnDate!: Date;
+    public bookId!: string;
+    public ownerId!: string;
 }
 
 export type Entity = User | Book | Loan;

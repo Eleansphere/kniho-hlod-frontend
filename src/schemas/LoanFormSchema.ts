@@ -15,13 +15,13 @@ export const loanFormSchema: FormDefinition<Loan> = {
             ]
         },
         {
-            name: 'loan_date',
+            name: 'loanDate',
             label: 'Datum zapujčení:',
             type: 'date',
             required: true
         },
         {
-            name: 'return_date',
+            name: 'returnDate',
             label: 'Datum vrácení',
             type: 'date'
         }
