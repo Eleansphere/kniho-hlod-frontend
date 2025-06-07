@@ -7,7 +7,7 @@ import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { userFormSchema } from '@/schemas/UserFormSchema';
 
-const tableColumns: Array<TableColumnDefinition> = [
+const columns: Array<TableColumnDefinition> = [
     {
         field: 'username',
         header: 'Přihlašovací jméno',
@@ -27,13 +27,13 @@ const dialog = usePreferredDialog();
 const currentUser = ref<User>(new User());
 const isSubmitting = ref(false);
 
-function openUserDialog(userData: User) {
+function openDialog(data: User) {
     dialog.open(
         GenericForm,
         {
             definition: userFormSchema,
-            modelValue: userData,
-            mode: userData ? 'view' : 'create',
+            modelValue: data,
+            mode: data ? 'view' : 'create',
             submitting: isSubmitting.value,
             'onUpdate:modelValue': (val) => (currentUser.value = val),
             onSubmit: handleSubmit
@@ -41,7 +41,7 @@ function openUserDialog(userData: User) {
         {
             modal: true,
             draggable: false,
-            header: userData ? `Detail uživatele: ${userData.username}` : 'Nový uživatel',
+            header: data ? `Detail uživatele: ${data.username}` : 'Nový uživatel',
             style: {
                 width: '40%'
             }
@@ -49,8 +49,8 @@ function openUserDialog(userData: User) {
     );
 }
 
-async function handleSubmit(userData: User) {
-    Object.assign(currentUser, userData);
+async function handleSubmit(data: User) {
+    Object.assign(currentUser, data);
 
     try {
         await store.saveEntity(currentUser.value);
@@ -69,5 +69,5 @@ onMounted(() => {
 <template>
     <h1 class="font-bold">Administartor</h1>
 
-    <Table :columns="tableColumns" :items="availableUsers" :handle-detail="openUserDialog" />
+    <Table :columns="columns" :items="availableUsers" :handle-detail="openDialog" />
 </template>

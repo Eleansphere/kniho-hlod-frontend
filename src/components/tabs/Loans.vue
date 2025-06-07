@@ -15,7 +15,7 @@ const props = defineProps<{
     userId: string;
 }>();
 
-const tableColumns: Array<TableColumnDefinition> = [
+const columns: Array<TableColumnDefinition> = [
     { field: ['bookEntity', 'title'], header: 'Kniha', type: 'text' },
     { field: 'borrower', header: 'Vypůjčil si', type: 'text' },
     { field: 'loanDate', header: 'Datum vypůjčení', type: 'date' },
@@ -56,13 +56,13 @@ const editedLoanFormSchema: FormDefinition<Loan> = {
     ]
 };
 
-function openLoanDialog(loanData: Loan) {
+function openDialog(data: Loan) {
     dialog.open(
         GenericForm,
         {
             definition: editedLoanFormSchema,
-            modelValue: loanData,
-            mode: loanData ? 'view' : 'create',
+            modelValue: data,
+            mode: data ? 'view' : 'create',
             submitting: isSubmitting.value,
             'onUpdate:modelValue': (val) => (currentLoan.value = val),
             onSubmit: handleSubmit
@@ -70,7 +70,7 @@ function openLoanDialog(loanData: Loan) {
         {
             modal: true,
             draggable: false,
-            header: loanData ? `Detail výpujčky: ${loanData.id}` : 'Nová výpujčka',
+            header: data ? `Detail výpujčky: ${data.id}` : 'Nová výpujčka',
             style: {
                 width: '40%'
             }
@@ -78,8 +78,8 @@ function openLoanDialog(loanData: Loan) {
     );
 }
 
-async function handleSubmit(loanData: Loan) {
-    const loanToSave = { ...loanData };
+async function handleSubmit(data: Loan) {
+    const loanToSave = { ...data };
     loanToSave.ownerId = props.userId;
 
     try {
@@ -97,5 +97,5 @@ async function handleSubmit(loanData: Loan) {
 <template>
     <h1 class="font-bold">Výpujčky</h1>
 
-    <Table :columns="tableColumns" :items="availableLoans" :handle-detail="openLoanDialog" />
+    <Table :columns="columns" :items="availableLoans" :handle-detail="openDialog" />
 </template>

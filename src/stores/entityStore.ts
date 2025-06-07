@@ -100,7 +100,7 @@ export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
         }
 
         function getRawEntity(id: string): TEntity | null {
-            return rawEntitiesMap.value.get(id) ?? null;
+            return (rawEntitiesMap.value.get(id) as TEntity) ?? null;
         }
 
         async function saveEntity(

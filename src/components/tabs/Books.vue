@@ -11,7 +11,7 @@ const props = defineProps<{
     userId: string;
 }>();
 
-const tableColumns: Array<TableColumnDefinition> = [
+const columns: Array<TableColumnDefinition> = [
     { field: 'author', header: 'Autor', type: 'text' },
     { field: 'title', header: 'Název knihy', type: 'text' },
     { field: 'description', header: 'Popis', type: 'text' },
@@ -36,30 +36,30 @@ const dialog = usePreferredDialog();
 const currentBook = ref<Book>(new Book());
 const isSubmitting = ref(false);
 
-function openBookDialog(bookData: Book) {
+function openDialog(data: Book) {
     dialog.open(
         GenericForm,
         {
             definition: bookFormSchema,
-            modelValue: bookData,
-            mode: bookData ? 'view' : 'create',
+            modelValue: data,
+            mode: data ? 'view' : 'create',
             submitting: isSubmitting.value,
             'onUpdate:modelValue': (val) => (currentBook.value = val),
             onSubmit: handleSubmit
         },
         {
             modal: true,
-            header: bookData ? `Detail knihy: ${bookData.title} ` : 'Nová kniha',
+            header: data ? `Detail knihy: ${data.title} ` : 'Nová kniha',
             style: { width: '500px' }
         }
     );
 }
 
-async function handleSubmit(bookData: Book) {
+async function handleSubmit(data: Book) {
     try {
         isSubmitting.value = true;
 
-        const bookToSave = { ...bookData };
+        const bookToSave = { ...data };
         bookToSave.ownerId = props.userId;
         console.log('Ukládám knihu:', bookToSave);
         await store.saveEntity(bookToSave);
@@ -83,6 +83,6 @@ onMounted(() => {
             <h1>Knihovna</h1>
         </div>
 
-        <Table :columns="tableColumns" :items="availableBooks" :handle-detail="openBookDialog" />
+        <Table :columns="columns" :items="availableBooks" :handle-detail="openDialog" />
     </div>
 </template>
