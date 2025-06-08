@@ -9,7 +9,6 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base:'kniho-hlod-frontend',
     plugins: [
         vue(),
         Components({
@@ -22,5 +21,9 @@ export default defineConfig({
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
       }
+    },
+    base:'/',
+    build:{
+      outDir:'dist'
     }
 });
