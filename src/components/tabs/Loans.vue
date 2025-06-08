@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
-import { Loan } from '@/types/EntityTypes';
+import { loanForm } from '@/components/form/definitions/loan';
 import type { TableColumnDefinition } from '@/components/table/types';
+import { authorizationStore } from '@/stores/authorizationStore';
+import { useBookStore } from '@/stores/entities/bookStore';
+import { useLoanStore, type ExtendedLoan } from '@/stores/entities/loanStore';
+import { Loan } from '@/types/entities';
 import { computed, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
-import type { ExtendedLoan } from '@/stores/entities/loanStore';
-import { loanFormSchema } from '@/schemas/LoanFormSchema';
-import type { FormDefinition } from '../form/FormTypes';
-import { useBookStore } from '@/stores/entities/bookStore';
-import { authorizationStore } from '@/stores/authorizationStore';
-import { useLoanStore } from '@/stores/entities/loanStore';
+import type { FormDefinition } from '../form/types';
 
 const props = defineProps<{
   userId: string;
@@ -41,8 +40,8 @@ const availableBooks = computed(() => {
     }));
 });
 
-const editedLoanFormSchema: FormDefinition<Loan> = {
-  ...loanFormSchema,
+const editedLoanForm: FormDefinition<Loan> = {
+  ...loanForm,
   fields: [
     {
       name: 'bookId',
@@ -52,15 +51,15 @@ const editedLoanFormSchema: FormDefinition<Loan> = {
       placeholder: 'Vyber knihu',
       options: availableBooks.value,
     },
-    ...loanFormSchema.fields,
+    ...loanForm.fields,
   ],
 };
 
-function openDialog(data: Loan) {
+function openDialog(data: Loan): void {
   dialog.open(
     GenericForm,
     {
-      definition: editedLoanFormSchema,
+      definition: editedLoanForm,
       modelValue: data,
       mode: data ? 'view' : 'create',
       submitting: isSubmitting.value,
@@ -78,7 +77,7 @@ function openDialog(data: Loan) {
   );
 }
 
-async function handleSubmit(data: Loan) {
+async function handleSubmit(data: Loan): Promise<void> {
   const loanToSave = { ...data };
   loanToSave.ownerId = props.userId;
 

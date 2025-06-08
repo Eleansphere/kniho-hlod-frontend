@@ -1,11 +1,11 @@
+import router from '@/router';
+import type { User } from '@/types/entities';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { API_ENDPOINTS } from './apiEndPoints';
-import router from '@/router';
-import { useUserStore } from './entities/userStore';
-import type { User } from '@/types/EntityTypes';
-import { useLoanStore } from './entities/loanStore';
 import { useBookStore } from './entities/bookStore';
+import { useLoanStore } from './entities/loanStore';
+import { useUserStore } from './entities/userStore';
 
 export const authorizationStore = defineStore('authorization', () => {
   const apiUrl = API_ENDPOINTS.userLogin;

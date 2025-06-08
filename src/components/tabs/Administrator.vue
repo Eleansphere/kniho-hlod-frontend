@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
-import { useUserStore } from '@/stores/entities/userStore';
-import { User } from '@/types/EntityTypes';
+import { userForm } from '@/components/form/definitions/user';
 import type { TableColumnDefinition } from '@/components/table/types';
+import { useUserStore } from '@/stores/entities/userStore';
+import { User } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
-import { userFormSchema } from '@/schemas/UserFormSchema';
 
 const columns: Array<TableColumnDefinition> = [
   {
@@ -27,11 +27,11 @@ const dialog = usePreferredDialog();
 const currentUser = ref<User>(new User());
 const isSubmitting = ref(false);
 
-function openDialog(data: User) {
+function openDialog(data: User):void {
   dialog.open(
     GenericForm,
     {
-      definition: userFormSchema,
+      definition: userForm,
       modelValue: data,
       mode: data ? 'view' : 'create',
       submitting: isSubmitting.value,
@@ -49,7 +49,7 @@ function openDialog(data: User) {
   );
 }
 
-async function handleSubmit(data: User) {
+async function handleSubmit(data: User): Promise<void> {
   Object.assign(currentUser, data);
 
   try {

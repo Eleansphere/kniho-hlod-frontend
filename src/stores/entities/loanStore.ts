@@ -1,9 +1,9 @@
-import { defineEntityStore } from '@/stores/entityStore';
-import type { Book, Loan, User } from '@/types/EntityTypes';
 import { API_ENDPOINTS } from '@/stores/apiEndPoints';
+import { defineEntityStore } from '@/stores/entityStore';
+import type { Book, Loan, User } from '@/types/entities';
 import type { CreateExtendedEntity } from '@/types/storeDefinition';
-import { useUserStore } from './userStore';
 import { useBookStore } from './bookStore';
+import { useUserStore } from './userStore';
 
 type ExtendLoan = {
   userEntity: User | null;

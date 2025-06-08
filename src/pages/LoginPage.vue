@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { authorizationStore } from '@/stores/authorizationStore';
-import type { User } from '@/types/EntityTypes';
+import type { User } from '@/types/entities';
 import { reactive, ref } from 'vue';
 
 const userData = reactive<Partial<User>>({

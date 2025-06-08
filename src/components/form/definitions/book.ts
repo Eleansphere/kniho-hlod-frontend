@@ -1,7 +1,7 @@
-import type { FormDefinition } from '@/components/form/FormTypes';
-import { Book } from '@/types/EntityTypes';
+import type { FormDefinition } from '@/components/form/types';
+import { Book } from '@/types/entities';
 
-export const bookFormSchema: FormDefinition<Book> = {
+export const bookForm: FormDefinition<Book> = {
   fields: [
     {
       name: 'title',

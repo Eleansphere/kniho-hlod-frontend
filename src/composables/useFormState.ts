@@ -1,5 +1,5 @@
-import { reactive, computed, watch } from 'vue';
-import type { FormDefinition, FormState } from '@/components/form/FormTypes';
+import type { FormDefinition, FormState } from '@/components/form/types';
+import { computed, reactive, watch } from 'vue';
 
 export function useFormState<T extends Record<string, any>>(
   definition: FormDefinition<T>,

@@ -1,7 +1,7 @@
-import type { FormDefinition } from '@/components/form/FormTypes';
-import type { Loan } from '@/types/EntityTypes';
+import type { FormDefinition } from '@/components/form/types';
+import type { Loan } from '@/types/entities';
 
-export const loanFormSchema: FormDefinition<Loan> = {
+export const loanForm: FormDefinition<Loan> = {
   fields: [
     {
       name: 'borrower',

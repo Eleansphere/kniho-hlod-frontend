@@ -1,6 +1,6 @@
-import { defineEntityStore } from '@/stores/entityStore';
-import type { User } from '@/types/EntityTypes';
 import { API_ENDPOINTS } from '@/stores/apiEndPoints';
+import { defineEntityStore } from '@/stores/entityStore';
+import type { User } from '@/types/entities';
 import type { CreateExtendedEntity } from '@/types/storeDefinition';
 
 type ExtendUser = {};

@@ -1,6 +1,6 @@
-import { defineEntityStore } from '@/stores/entityStore';
 import { API_ENDPOINTS } from '@/stores/apiEndPoints';
-import type { Book } from '@/types/EntityTypes';
+import { defineEntityStore } from '@/stores/entityStore';
+import type { Book } from '@/types/entities';
 import type { CreateExtendedEntity } from '@/types/storeDefinition';
 
 type ExtendBook = {};

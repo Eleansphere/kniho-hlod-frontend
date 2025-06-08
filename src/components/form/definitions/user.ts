@@ -1,7 +1,7 @@
-import type { User } from '@/types/EntityTypes';
-import type { FormDefinition } from '@/components/form/FormTypes';
+import type { FormDefinition } from '@/components/form/types';
+import type { User } from '@/types/entities';
 
-export const userFormSchema: FormDefinition<User> = {
+export const userForm: FormDefinition<User> = {
   fields: [
     {
       name: 'username',

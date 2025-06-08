@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { FormDefinition } from '@/components/form/types';
 import { useFormState } from '@/composables/useFormState';
-import type { FormDefinition } from '@/components/form/FormTypes';
-import { computed, watch } from 'vue';
 import { DatePicker } from 'primevue';
+import { computed, watch } from 'vue';
 
 const props = defineProps<{
   definition: FormDefinition<any>;

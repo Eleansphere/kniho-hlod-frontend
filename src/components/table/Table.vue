@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Entity } from '@/types/EntityTypes';
+import { formatValue, getNestedValue } from '@/components/table/helpers';
 import type { TableColumnDefinition } from '@/components/table/types';
-import { getNestedValue, formatValue } from '@/components/table/helpers';
+import type { Entity } from '@/types/entities';
 
 defineProps<{
   columns: Array<TableColumnDefinition>;

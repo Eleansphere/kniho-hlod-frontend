@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
-import { useBookStore, type ExtendedBook } from '@/stores/entities/bookStore';
-import { Book } from '@/types/EntityTypes';
 import type { TableColumnDefinition } from '@/components/table/types';
+import { useBookStore, type ExtendedBook } from '@/stores/entities/bookStore';
+import { Book } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
-import { bookFormSchema } from '../../schemas/BookFormSchema';
+import { bookForm } from '../form/definitions/book';
 
 const props = defineProps<{
   userId: string;
@@ -36,11 +36,11 @@ const dialog = usePreferredDialog();
 const currentBook = ref<Book>(new Book());
 const isSubmitting = ref(false);
 
-function openDialog(data: Book) {
+function openDialog(data: Book): void {
   dialog.open(
     GenericForm,
     {
-      definition: bookFormSchema,
+      definition: bookForm,
       modelValue: data,
       mode: data ? 'view' : 'create',
       submitting: isSubmitting.value,
@@ -55,7 +55,7 @@ function openDialog(data: Book) {
   );
 }
 
-async function handleSubmit(data: Book) {
+async function handleSubmit(data: Book): Promise<void> {
   try {
     isSubmitting.value = true;
 
