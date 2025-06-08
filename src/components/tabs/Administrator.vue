@@ -27,7 +27,7 @@ const dialog = usePreferredDialog();
 const currentUser = ref<User>(new User());
 const isSubmitting = ref(false);
 
-function openDialog(data: User):void {
+function openDialog(data: User): void {
   dialog.open(
     GenericForm,
     {

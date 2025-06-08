@@ -6,4 +6,19 @@ const router = createRouter({
   routes,
 });
 
+// router.beforeEach((to, from, next)=>{
+
+//   //token here
+
+//   if(to.meta.requiresAuth && !isAuthenticated){
+//     next('/login')
+//   }
+//   else if(to.path ==='/login' && isAuthenticated){
+//     next('/home');
+//   }
+//   else{
+//     next()
+//   }
+// })
+
 export default router;
