@@ -8,7 +8,7 @@ type ExtendBook = {};
 export type ExtendedBook = CreateExtendedEntity<Book, ExtendBook>;
 
 export const useBookStore = defineEntityStore<Book, ExtendBook>(
-    'bookStore',
-    {},
-    { apiUrl: API_ENDPOINTS.books }
+  'bookStore',
+  {},
+  { apiUrl: API_ENDPOINTS.books }
 );

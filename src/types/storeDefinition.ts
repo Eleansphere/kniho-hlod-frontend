@@ -1,6 +1,6 @@
 // Base entity interface
 export interface BaseEntity {
-    id: string;
+  id: string;
 }
 
 // Type to create extended entities with additional properties
@@ -10,7 +10,7 @@ export type CreateExtendedEntity<TEntity, TExtend = {}> = TEntity & TExtend;
 export type EntityExtension<TEntity, TResult> = (entity: TEntity) => TResult;
 
 export interface EntityStoreConfig {
-    apiUrl?: string;
-    pluralName?: string;
-    headers?: Record<string, string>;
+  apiUrl?: string;
+  pluralName?: string;
+  headers?: Record<string, string>;
 }

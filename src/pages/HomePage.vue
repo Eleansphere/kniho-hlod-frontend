@@ -3,6 +3,6 @@ import MainContentPage from '@/pages/ContentPage.vue';
 </script>
 
 <template>
-    <MainContentPage />
-    <router-view />
+  <MainContentPage />
+  <router-view />
 </template>

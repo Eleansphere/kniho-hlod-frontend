@@ -8,9 +8,9 @@ type ExtendUser = {};
 export type ExtendedUser = CreateExtendedEntity<User, ExtendUser>;
 
 export const useUserStore = defineEntityStore<User, ExtendUser>(
-    'userStore',
-    {},
-    {
-        apiUrl: API_ENDPOINTS.users
-    }
+  'userStore',
+  {},
+  {
+    apiUrl: API_ENDPOINTS.users,
+  }
 );

@@ -13,12 +13,12 @@ import router from '@/router';
 import '@/assets/main.css';
 const app = createApp(App);
 app.use(Primevue, {
-    theme: {
-        preset: Aura,
-        options: {
-            darkModeSelector: false || 'none'
-        }
-    }
+  theme: {
+    preset: Aura,
+    options: {
+      darkModeSelector: false || 'none',
+    },
+  },
 });
 app.use(router);
 app.use(createPinia());

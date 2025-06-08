@@ -8,18 +8,18 @@ import GenericForm from '../form/GenericForm.vue';
 import { userFormSchema } from '@/schemas/UserFormSchema';
 
 const columns: Array<TableColumnDefinition> = [
-    {
-        field: 'username',
-        header: 'Přihlašovací jméno',
-        type: 'text'
-    },
-    { field: 'email', header: 'Email', type: 'text' },
-    { field: 'role', header: 'Role', type: 'text' }
+  {
+    field: 'username',
+    header: 'Přihlašovací jméno',
+    type: 'text',
+  },
+  { field: 'email', header: 'Email', type: 'text' },
+  { field: 'role', header: 'Role', type: 'text' },
 ];
 
 const store = useUserStore();
 const availableUsers = computed<Array<User>>(() => {
-    return store.entities;
+  return store.entities;
 });
 
 const dialog = usePreferredDialog();
@@ -28,46 +28,45 @@ const currentUser = ref<User>(new User());
 const isSubmitting = ref(false);
 
 function openDialog(data: User) {
-    dialog.open(
-        GenericForm,
-        {
-            definition: userFormSchema,
-            modelValue: data,
-            mode: data ? 'view' : 'create',
-            submitting: isSubmitting.value,
-            'onUpdate:modelValue': (val) => (currentUser.value = val),
-            onSubmit: handleSubmit
-        },
-        {
-            modal: true,
-            draggable: false,
-            header: data ? `Detail uživatele: ${data.username}` : 'Nový uživatel',
-            style: {
-                width: '40%'
-            }
-        }
-    );
+  dialog.open(
+    GenericForm,
+    {
+      definition: userFormSchema,
+      modelValue: data,
+      mode: data ? 'view' : 'create',
+      submitting: isSubmitting.value,
+      'onUpdate:modelValue': (val) => (currentUser.value = val),
+      onSubmit: handleSubmit,
+    },
+    {
+      modal: true,
+      draggable: false,
+      header: data ? `Detail uživatele: ${data.username}` : 'Nový uživatel',
+      style: {
+        width: '40%',
+      },
+    }
+  );
 }
 
 async function handleSubmit(data: User) {
-    Object.assign(currentUser, data);
+  Object.assign(currentUser, data);
 
-    try {
-        await store.saveEntity(currentUser.value);
+  try {
+    await store.saveEntity(currentUser.value);
 
-        dialog.close();
-    } catch (error) {
-        console.error(error);
-    }
+    dialog.close();
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 onMounted(() => {
-    store.fetchEntities();
+  store.fetchEntities();
 });
 </script>
 
 <template>
-    <h1 class="font-bold">Administartor</h1>
-
-    <Table :columns="columns" :items="availableUsers" :handle-detail="openDialog" />
+  <h1 class="font-bold">Administartor</h1>
+  <Table :columns="columns" :items="availableUsers" :handle-detail="openDialog" />
 </template>

@@ -12,19 +12,19 @@ import { authorizationStore } from '@/stores/authorizationStore';
 import { useLoanStore } from '@/stores/entities/loanStore';
 
 const props = defineProps<{
-    userId: string;
+  userId: string;
 }>();
 
 const columns: Array<TableColumnDefinition> = [
-    { field: ['bookEntity', 'title'], header: 'Kniha', type: 'text' },
-    { field: 'borrower', header: 'Vypůjčil si', type: 'text' },
-    { field: 'loanDate', header: 'Datum vypůjčení', type: 'date' },
-    { field: 'returnDate', header: 'Datum vrácení', type: 'date' }
+  { field: ['bookEntity', 'title'], header: 'Kniha', type: 'text' },
+  { field: 'borrower', header: 'Vypůjčil si', type: 'text' },
+  { field: 'loanDate', header: 'Datum vypůjčení', type: 'date' },
+  { field: 'returnDate', header: 'Datum vrácení', type: 'date' },
 ];
 
 const store = useLoanStore();
 const availableLoans = computed<Array<ExtendedLoan>>(() => {
-    return store.entities.filter((loan) => loan.ownerId === authorizationStore().loggedUser?.id);
+  return store.entities.filter((loan) => loan.ownerId === authorizationStore().loggedUser?.id);
 });
 
 const dialog = usePreferredDialog();
@@ -33,69 +33,69 @@ const currentLoan = ref<Loan>(new Loan());
 const isSubmitting = ref(false);
 
 const availableBooks = computed(() => {
-    return useBookStore()
-        .entities.filter((book) => book.ownerId === authorizationStore().loggedUser?.id)
-        .map((book) => ({
-            label: book.title,
-            value: book.id
-        }));
+  return useBookStore()
+    .entities.filter((book) => book.ownerId === authorizationStore().loggedUser?.id)
+    .map((book) => ({
+      label: book.title,
+      value: book.id,
+    }));
 });
 
 const editedLoanFormSchema: FormDefinition<Loan> = {
-    ...loanFormSchema,
-    fields: [
-        {
-            name: 'bookId',
-            label: 'Kniha',
-            type: 'select',
-            required: true,
-            placeholder: 'Vyber knihu',
-            options: availableBooks.value
-        },
-        ...loanFormSchema.fields
-    ]
+  ...loanFormSchema,
+  fields: [
+    {
+      name: 'bookId',
+      label: 'Kniha',
+      type: 'select',
+      required: true,
+      placeholder: 'Vyber knihu',
+      options: availableBooks.value,
+    },
+    ...loanFormSchema.fields,
+  ],
 };
 
 function openDialog(data: Loan) {
-    dialog.open(
-        GenericForm,
-        {
-            definition: editedLoanFormSchema,
-            modelValue: data,
-            mode: data ? 'view' : 'create',
-            submitting: isSubmitting.value,
-            'onUpdate:modelValue': (val) => (currentLoan.value = val),
-            onSubmit: handleSubmit
-        },
-        {
-            modal: true,
-            draggable: false,
-            header: data ? `Detail výpujčky: ${data.id}` : 'Nová výpujčka',
-            style: {
-                width: '40%'
-            }
-        }
-    );
+  dialog.open(
+    GenericForm,
+    {
+      definition: editedLoanFormSchema,
+      modelValue: data,
+      mode: data ? 'view' : 'create',
+      submitting: isSubmitting.value,
+      'onUpdate:modelValue': (val) => (currentLoan.value = val),
+      onSubmit: handleSubmit,
+    },
+    {
+      modal: true,
+      draggable: false,
+      header: data ? `Detail výpujčky: ${data.id}` : 'Nová výpujčka',
+      style: {
+        width: '40%',
+      },
+    }
+  );
 }
 
 async function handleSubmit(data: Loan) {
-    const loanToSave = { ...data };
-    loanToSave.ownerId = props.userId;
+  const loanToSave = { ...data };
+  loanToSave.ownerId = props.userId;
 
-    try {
-        await store.saveEntity(loanToSave);
+  try {
+    await store.saveEntity(loanToSave);
 
-        console.log(loanToSave);
+    console.log(loanToSave);
 
-        dialog.close();
-    } catch (error) {
-        console.error(error);
-    }
+    dialog.close();
+  } catch (error) {
+    console.error(error);
+  }
 }
 </script>
 
 <template>
-    <h1 class="font-bold">Výpujčky</h1>
+  <h1 class="font-bold">Výpujčky</h1>
 
-    <Table :columns="columns" :items="availableLoans" :handle-detail="openDialog" />
+  <Table :columns="columns" :items="availableLoans" :handle-detail="openDialog" />
 </template>
