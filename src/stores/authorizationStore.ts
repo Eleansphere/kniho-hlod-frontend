@@ -35,7 +35,7 @@ export const authorizationStore = defineStore('authorization', () => {
           useBookStore().fetchEntities(),
           useLoanStore().fetchEntities(),
         ]);
-        router.push('/');
+        router.push('/home');
         actualUsername.value = userCredentials.email;
         console.log(userCredentials);
       }
