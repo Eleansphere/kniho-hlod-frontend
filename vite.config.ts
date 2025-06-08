@@ -22,7 +22,7 @@ export default defineConfig({
         '@': fileURLToPath(new URL('./src', import.meta.url))
       }
     },
-    base:'/',
+    base: process.env.VITE_BASE_URL || '/',
     build:{
       outDir:'dist'
     }
