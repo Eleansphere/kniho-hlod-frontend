@@ -1,7 +1,11 @@
 export const routes = [
   {
     path: '/',
-    name: 'main-layout',
+    redirect: '/login'
+  },
+  {
+    path: '/home',
+    name: 'main-layout', 
     component: () => import('@/layouts/MainLayout.vue'),
     children: [
       {
@@ -12,7 +16,7 @@ export const routes = [
       },
       {
         path: 'books',
-        name: 'Books',
+        name: 'Books', 
         component: () => import('@/components/tabs/Books.vue'),
         meta: {
           title: 'Knihy',
@@ -26,7 +30,7 @@ export const routes = [
         component: () => import('@/components/tabs/Loans.vue'),
         meta: {
           title: 'Výpujčky',
-          icon: 'pi pi-address-book',
+          icon: 'pi pi-address-book', 
           badge: 2,
         },
       },
