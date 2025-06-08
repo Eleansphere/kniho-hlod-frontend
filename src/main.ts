@@ -1,27 +1,34 @@
-import { createApp } from 'vue';
-import { createPinia } from 'pinia';
+import { registerEntityClass } from '@/stores/entityClassRegistry';
+import { Book, Loan, User } from '@/types/entities';
 import Aura from '@primeuix/themes/aura';
-import Primevue from 'primevue/config';
-import ToastService from 'primevue/toastservice';
-import DialogService from 'primevue/dialogservice';
+import { createPinia } from 'pinia';
 import 'primeicons/primeicons.css';
+import Primevue from 'primevue/config';
+import DialogService from 'primevue/dialogservice';
+import ToastService from 'primevue/toastservice';
+import { createApp } from 'vue';
 
 import App from '@/App.vue';
-import router from '@/router';
 import '@/assets/main.css';
+import router from '@/router';
 const app = createApp(App);
 app.use(Primevue, {
-    theme: {
-        preset: Aura,
-        options: {
-            darkModeSelector: false || 'none'
-        }
-    }
+  theme: {
+    preset: Aura,
+    options: {
+      darkModeSelector: false || 'none',
+    },
+  },
 });
 app.use(router);
 app.use(createPinia());
 
 app.use(ToastService);
 app.use(DialogService);
+
+// Volat např. v main.ts nebo store/index.ts
+registerEntityClass('userStore', User);
+registerEntityClass('bookStore', Book);
+registerEntityClass('loanStore', Loan);
 
 app.mount('#app');
