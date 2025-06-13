@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import MainContentPage from '@/pages/ContentPage.vue';
+import ContentPage from '@/pages/ContentPage.vue';
 </script>
 
 <template>
-  <MainContentPage />
+  <ContentPage />
   <router-view />
 </template>

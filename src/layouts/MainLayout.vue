@@ -1,11 +1,8 @@
-<script setup lang="ts">
-import TopPanelMenu from '@/pages/TopPanelMenu.vue';
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <div class="w-full h-screen bg-hlod bg-no-repeat bg-cover bg-blue-100">
-    <top-panel-menu />
-    <main class="px-2 mt-4">
+  <div class="h-screen bg-hlod bg-no-repeat bg-cover flex items-center justify-center">
+    <main class="flex items-center justify-center">
       <router-view />
     </main>
   </div>

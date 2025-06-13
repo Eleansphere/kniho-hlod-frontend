@@ -17,7 +17,7 @@ interface MenuTabContent {
   roles: Array<string>;
 }
 
-const { loggedUser, actualUsername } = authorizationStore();
+const { loggedUser, actualUsername, logOut } = authorizationStore();
 //console.log('Aktualni user', actualUsername.value);
 const menuTabs: Array<MenuTabContent> = [
   {
@@ -76,16 +76,26 @@ onMounted(() => {
 </script>
 
 <template>
-  <Card class="mx-auto h-[80vh] w-4/5 opacity-95">
+  <Card class="h-[80vh] opacity-95">
     <template #content>
-      <Tabs :value="0">
+      <Tabs :value="0" scrollable>
         <TabList>
-          <Tab v-for="tab in menuTabs" :key="tab.label" :value="tab.value">
-            <span class="flex items-center gap-2">
-              <i :class="tab.icon"></i>
-              <span>{{ tab.label }}</span>
-            </span>
-          </Tab>
+          <div class="flex items-center w-full">
+            <Tab v-for="tab in menuTabs" :key="tab.label" :value="tab.value">
+              <span class="flex items-center gap-2">
+                <i :class="tab.icon"></i>
+                <span>{{ tab.label }}</span>
+              </span>
+            </Tab>
+          </div>
+          <div class="flex items-center justify-self-end gap-4">
+            <Avatar
+              image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png"
+              shape="circle"
+            />
+            <span>{{ actualUsername }}</span>
+            <Button @click="logOut" icon="pi pi-sign-out" rounded />
+          </div>
         </TabList>
         <TabPanels>
           <TabPanel v-for="tab in menuTabs" :key="tab.label" :value="tab.value">
