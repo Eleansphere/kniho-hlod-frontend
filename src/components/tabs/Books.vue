@@ -6,6 +6,7 @@ import { Book } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { bookForm } from '../form/definitions/book';
+import { useNotification } from '@/composables/useNotification';
 
 const props = defineProps<{
   userId: string;
@@ -35,6 +36,7 @@ const dialog = usePreferredDialog();
 
 const currentBook = ref<Book>(new Book());
 const isSubmitting = ref(false);
+const { showSaveSuccess, showSaveError } = useNotification();
 
 function openDialog(data: Book): void {
   dialog.open(
@@ -59,13 +61,14 @@ async function handleSubmit(data: Book): Promise<void> {
   try {
     isSubmitting.value = true;
 
-    const bookToSave = { ...data };
-    bookToSave.ownerId = props.userId;
+    const bookToSave = { ...data, ownerId: props.userId };
     console.log('Ukládám knihu:', bookToSave);
     await store.saveEntity(bookToSave);
 
+    showSaveSuccess('Úspěch', 'Kniha byla úspěšně uložena.');
     dialog.close();
   } catch (error) {
+    showSaveError('Chyba', 'Knihu se nepodařilo uložit.');
     console.error('Chyba při ukládání knihy:', error);
   } finally {
     isSubmitting.value = false;

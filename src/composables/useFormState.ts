@@ -61,8 +61,12 @@ export function useFormState<T extends Record<string, any>>(
 
   function resetForm(newModel?: T) {
     Object.assign(state.model as Record<string, any>, { ...(newModel || initialModel) });
-    state.errors = {} as Partial<Record<keyof T, string>>;
-    state.touched = {} as Partial<Record<keyof T, boolean>>;
+    Object.keys(state.errors as Record<string, any>).forEach(
+      (key) => delete (state.errors as Record<string, any>)[key]
+    );
+    Object.keys(state.touched as Record<string, any>).forEach(
+      (key) => delete (state.touched as Record<string, any>)[key]
+    );
     state.isSubmitting = false;
   }
 

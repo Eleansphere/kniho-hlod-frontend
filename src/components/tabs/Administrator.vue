@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/entities/userStore';
 import { User } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
+import { useNotification } from '@/composables/useNotification';
 
 const columns: Array<TableColumnDefinition> = [
   {
@@ -26,6 +27,7 @@ const dialog = usePreferredDialog();
 
 const currentUser = ref<User>(new User());
 const isSubmitting = ref(false);
+const { showSaveSuccess, showSaveError } = useNotification();
 
 function openDialog(data: User): void {
   dialog.open(
@@ -54,9 +56,16 @@ async function handleSubmit(data: User): Promise<void> {
 
   try {
     await store.saveEntity(currentUser.value);
-
+    showSaveSuccess(
+      'Uživatel úspěšně uložen',
+      `Uživatel ${currentUser.value.username} byl úspěšně uložen.`
+    );
     dialog.close();
   } catch (error) {
+    showSaveError(
+      'Chyba při ukládání uživatele',
+      `Uživatel ${currentUser.value.username} se nepodařilo uložit.`
+    );
     console.error(error);
   }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useNotification } from '@/composables/useNotification';
 import { authorizationStore } from '@/stores/authorizationStore';
 import type { User } from '@/types/entities';
 import { reactive, ref } from 'vue';
@@ -8,14 +9,16 @@ const userData = reactive<Partial<User>>({
   password: '',
 });
 const isProcessing = ref(false);
-
+const { showSaveSuccess, showSaveError } = useNotification();
 const { handleLogin } = authorizationStore();
 
 async function handleAuthorization(): Promise<void> {
   isProcessing.value = true;
   try {
     await handleLogin(userData);
+    showSaveSuccess('Úspěšné přihlášení', 'Vítejte zpět!');
   } catch (error) {
+    showSaveError('Chyba při přihlášení', 'Zkontrolujte své přihlašovací údaje.');
     console.error(error);
   } finally {
     isProcessing.value = false;

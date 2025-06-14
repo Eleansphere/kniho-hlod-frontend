@@ -9,6 +9,7 @@ import { Loan } from '@/types/entities';
 import { computed, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import type { FormDefinition } from '../form/types';
+import { useNotification } from '@/composables/useNotification';
 
 const props = defineProps<{
   userId: string;
@@ -22,8 +23,10 @@ const columns: Array<TableColumnDefinition> = [
 ];
 
 const store = useLoanStore();
+const { loggedUser } = authorizationStore();
+
 const availableLoans = computed<Array<ExtendedLoan>>(() => {
-  return store.entities.filter((loan) => loan.ownerId === authorizationStore().loggedUser?.id);
+  return store.entities.filter((loan) => loan.ownerId === loggedUser?.id);
 });
 
 const dialog = usePreferredDialog();
@@ -31,9 +34,11 @@ const dialog = usePreferredDialog();
 const currentLoan = ref<Loan>(new Loan());
 const isSubmitting = ref(false);
 
+const { showSaveSuccess, showSaveError } = useNotification();
+
 const availableBooks = computed(() => {
   return useBookStore()
-    .entities.filter((book) => book.ownerId === authorizationStore().loggedUser?.id)
+    .entities.filter((book) => book.ownerId === loggedUser?.id)
     .map((book) => ({
       label: book.title,
       value: book.id,
@@ -78,16 +83,16 @@ function openDialog(data: Loan): void {
 }
 
 async function handleSubmit(data: Loan): Promise<void> {
-  const loanToSave = { ...data };
-  loanToSave.ownerId = props.userId;
+  const loanToSave = { ...data, ownerId: props.userId };
 
   try {
     await store.saveEntity(loanToSave);
 
     console.log(loanToSave);
-
+    showSaveSuccess('Úspěch', 'Výpujčka byla úspěšně uložena.');
     dialog.close();
   } catch (error) {
+    showSaveError('Chyba', 'Při ukládání výpujčky došlo k chybě.');
     console.error(error);
   }
 }

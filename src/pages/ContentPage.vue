@@ -7,6 +7,7 @@ import AdministratorPage from '../components/tabs/Administrator.vue';
 import MyAccountPage from '../components/tabs/MyAccount.vue';
 import { authorizationStore } from '@/stores/authorizationStore';
 import { useUserStore } from '@/stores/entities/userStore';
+import { useNotification } from '@/composables/useNotification';
 
 interface MenuTabContent {
   label: string;
@@ -18,6 +19,12 @@ interface MenuTabContent {
 }
 
 const { loggedUser, actualUsername, logOut } = authorizationStore();
+const { showInfo } = useNotification();
+
+function handleLogOut(): void {
+  logOut();
+  showInfo('Odhlášení', 'Byli jste úspěšně odhlášeni.');
+}
 //console.log('Aktualni user', actualUsername.value);
 const menuTabs: Array<MenuTabContent> = [
   {
@@ -61,7 +68,7 @@ const menuTabs: Array<MenuTabContent> = [
     roles: ['admin', 'user'],
   },
   {
-    label: 'Administrátorská správa',
+    label: 'Administrátor',
     content: AdministratorPage,
     props: {},
     icon: 'pi pi-cog',
@@ -94,7 +101,7 @@ onMounted(() => {
               shape="circle"
             />
             <span>{{ actualUsername }}</span>
-            <Button @click="logOut" icon="pi pi-sign-out" rounded />
+            <Button @click="handleLogOut" icon="pi pi-sign-out" rounded />
           </div>
         </TabList>
         <TabPanels>
