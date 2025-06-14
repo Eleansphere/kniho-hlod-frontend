@@ -1,24 +1,22 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { routes } from './routes';
-
+import { authorizationStore } from '@/stores/authorizationStore';
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
 });
 
-// router.beforeEach((to, from, next)=>{
+router.beforeEach((to, from, next) => {
+  const { getToken, isAuthenticated } = authorizationStore();
+  //token here
 
-//   //token here
-
-//   if(to.meta.requiresAuth && !isAuthenticated){
-//     next('/login')
-//   }
-//   else if(to.path ==='/login' && isAuthenticated){
-//     next('/home');
-//   }
-//   else{
-//     next()
-//   }
-// })
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login');
+  } else if (to.path === '/login' && isAuthenticated) {
+    next('/home');
+  } else {
+    next();
+  }
+});
 
 export default router;

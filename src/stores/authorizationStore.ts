@@ -24,27 +24,37 @@ export const authorizationStore = defineStore('authorization', () => {
       });
 
       const userData = await response.json();
+      console.log('📦 Data z response:', userData);
+
       if (!response.ok) {
+        console.error('❌ Chyba v odpovědi:', userData.error);
         throw new Error(userData.error);
-      } else {
-        //            tokenKey.value = userData.token;
-        //          setToken(userData.token);
-        //zatim load dat tady, nez neco vymyslime
-        await Promise.all([
-          useUserStore().fetchEntities(),
-          useBookStore().fetchEntities(),
-          useLoanStore().fetchEntities(),
-        ]);
-        router.push('/home');
-        actualUsername.value = userCredentials.email;
-        console.log(userCredentials);
       }
+
+      // nastav tokenKey (důležité)
+      tokenKey.value = userData.token;
+
+      setToken(userData.token);
+      isAuthenticated.value = true;
+      actualUsername.value = userCredentials.email ?? '';
+
+      console.log('✅ Token uložen do localStorage:', getToken());
+
+      await Promise.all([
+        useUserStore().fetchEntities(),
+        useBookStore().fetchEntities(),
+        useLoanStore().fetchEntities(),
+      ]);
+
+      router.push('/home');
     } catch (error) {
-      console.error(error.message);
+      console.error('🔥 Chyba při loginu:', error);
     }
   }
+
   function logOut() {
     router.push('/login');
+    removeToken();
     isAuthenticated.value = false;
   }
 
