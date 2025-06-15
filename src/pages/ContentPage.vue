@@ -1,32 +1,23 @@
 <script setup lang="ts">
-import { onMounted, type Component } from 'vue';
+import { computed } from 'vue';
 import BooksPage from '../components/tabs/Books.vue';
 import LoansPage from '../components/tabs/Loans.vue';
 import OverviewPage from '../components/tabs/Overview.vue';
 import AdministratorPage from '../components/tabs/Administrator.vue';
 import MyAccountPage from '../components/tabs/MyAccount.vue';
 import { authorizationStore } from '@/stores/authorizationStore';
-import { useUserStore } from '@/stores/entities/userStore';
 import { useNotification } from '@/composables/useNotification';
+import type { MenuTab } from '@/types/mentuTab';
 
-interface MenuTabContent {
-  label: string;
-  icon: string;
-  content: Component | null;
-  props: Record<string, string | null>;
-  value: number;
-  roles: Array<string>;
-}
-
-const { loggedUser, actualUsername, logOut } = authorizationStore();
+const { loggedUser, actualUsername, actualRole, logOut } = authorizationStore();
 const { showInfo } = useNotification();
 
 function handleLogOut(): void {
   logOut();
   showInfo('Odhlášení', 'Byli jste úspěšně odhlášeni.');
 }
-//console.log('Aktualni user', actualUsername.value);
-const menuTabs: Array<MenuTabContent> = [
+
+const menuTabs: Array<MenuTab> = [
   {
     label: 'Přehled',
     content: OverviewPage,
@@ -38,7 +29,7 @@ const menuTabs: Array<MenuTabContent> = [
   {
     label: 'Výpujčky',
     content: LoansPage,
-    props: { userId: loggedUser?.id },
+    props: { userId: loggedUser!.id },
     icon: 'pi pi-address-book',
     value: 1,
     roles: ['admin', 'user'],
@@ -46,7 +37,7 @@ const menuTabs: Array<MenuTabContent> = [
   {
     label: 'Moje knihy',
     content: BooksPage,
-    props: { userId: loggedUser?.id },
+    props: { userId: loggedUser!.id },
     icon: 'pi pi-book',
     value: 2,
     roles: ['admin', 'user'],
@@ -77,8 +68,8 @@ const menuTabs: Array<MenuTabContent> = [
   },
 ];
 
-onMounted(() => {
-  useUserStore().fetchEntities();
+const availableTabs = computed(() => {
+  return menuTabs.filter((tab) => tab.roles.includes(actualRole));
 });
 </script>
 
@@ -88,7 +79,7 @@ onMounted(() => {
       <Tabs :value="0" scrollable>
         <TabList>
           <div class="flex items-center w-full">
-            <Tab v-for="tab in menuTabs" :key="tab.label" :value="tab.value">
+            <Tab v-for="tab in availableTabs" :key="tab.label" :value="tab.value">
               <span class="flex items-center gap-2">
                 <i :class="tab.icon"></i>
                 <span>{{ tab.label }}</span>

@@ -31,15 +31,13 @@ export const authorizationStore = defineStore('authorization', () => {
         throw new Error(userData.error);
       }
 
-      // nastav tokenKey (důležité)
       tokenKey.value = userData.token;
 
       setToken(userData.token);
       isAuthenticated.value = true;
-      actualUsername.value = userCredentials.email ?? '';
-
+      actualUsername.value = userData.email;
+      actualRole.value = userData.role;
       console.log('✅ Token uložen do localStorage:', getToken());
-
       await Promise.all([
         useUserStore().fetchEntities(),
         useBookStore().fetchEntities(),
@@ -67,7 +65,6 @@ export const authorizationStore = defineStore('authorization', () => {
     return localStorage.getItem(tokenKey.value);
   }
 
-  // Odstranění tokenu (logout)
   function removeToken() {
     localStorage.removeItem(tokenKey.value);
   }
@@ -75,10 +72,7 @@ export const authorizationStore = defineStore('authorization', () => {
   //getters
 
   const loggedUser = computed<User | null>(() => {
-    return (
-      useUserStore().entities.find((currentUser) => currentUser.email === actualUsername.value) ??
-      null
-    );
+    return useUserStore().entities.find((user) => user.email === actualUsername.value) ?? null;
   });
   function isLoggedIn() {
     return isAuthenticated.value;
