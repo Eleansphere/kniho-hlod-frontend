@@ -7,16 +7,21 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const { getToken, isAuthenticated } = authorizationStore();
-  //token here
+  const { getToken, isTokenExpired, isAuthenticated } = authorizationStore();
 
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
-  } else if (to.path === '/login' && isAuthenticated) {
-    next('/home');
-  } else {
-    next();
+  const token = getToken();
+
+  if (to.meta.requiresAuth) {
+    if (!token || isTokenExpired()) {
+      console.log('🚫 Není přihlášený nebo expirovaný token');
+      return next('/login');
+    }
   }
-});
 
+  if (to.path === '/login' && token && !isTokenExpired()) {
+    return next('/home');
+  }
+
+  next();
+});
 export default router;

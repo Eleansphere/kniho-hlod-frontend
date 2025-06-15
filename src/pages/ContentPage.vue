@@ -6,16 +6,9 @@ import OverviewPage from '../components/tabs/Overview.vue';
 import AdministratorPage from '../components/tabs/Administrator.vue';
 import MyAccountPage from '../components/tabs/MyAccount.vue';
 import { authorizationStore } from '@/stores/authorizationStore';
-import { useNotification } from '@/composables/useNotification';
 import type { MenuTab } from '@/types/mentuTab';
 
 const { loggedUser, actualUsername, actualRole, logOut } = authorizationStore();
-const { showInfo } = useNotification();
-
-function handleLogOut(): void {
-  logOut();
-  showInfo('Odhlášení', 'Byli jste úspěšně odhlášeni.');
-}
 
 const menuTabs: Array<MenuTab> = [
   {
@@ -92,7 +85,7 @@ const availableTabs = computed(() => {
               shape="circle"
             />
             <span>{{ actualUsername }}</span>
-            <Button @click="handleLogOut" icon="pi pi-sign-out" rounded />
+            <Button @click="logOut" icon="pi pi-sign-out" rounded />
           </div>
         </TabList>
         <TabPanels>

@@ -6,15 +6,20 @@ import { API_ENDPOINTS } from './apiEndPoints';
 import { useBookStore } from './entities/bookStore';
 import { useLoanStore } from './entities/loanStore';
 import { useUserStore } from './entities/userStore';
+import { useTokenManager } from '@/composables/useTokenManager';
+import { useNotification } from '@/composables/useNotification';
 
 export const authorizationStore = defineStore('authorization', () => {
   const apiUrl = API_ENDPOINTS.userLogin;
-  //state
+  const tokenManager = useTokenManager('auth-token');
+  const { showInfo } = useNotification();
+
+  // State
   const actualRole = ref('');
   const actualUsername = ref('');
   const isAuthenticated = ref(false);
-  const tokenKey = ref('');
-  //actions
+
+  // Actions
   async function handleLogin(userCredentials: Partial<User>): Promise<void> {
     try {
       const response = await fetch(apiUrl, {
@@ -31,13 +36,17 @@ export const authorizationStore = defineStore('authorization', () => {
         throw new Error(userData.error);
       }
 
-      tokenKey.value = userData.token;
+      tokenManager.setToken(userData.token);
+      tokenManager.setTokenExpiration(userData.token, () => {
+        logOut();
+      });
 
-      setToken(userData.token);
       isAuthenticated.value = true;
       actualUsername.value = userData.email;
       actualRole.value = userData.role;
-      console.log('✅ Token uložen do localStorage:', getToken());
+
+      console.log('✅ Token uložen do localStorage:', tokenManager.getToken());
+
       await Promise.all([
         useUserStore().fetchEntities(),
         useBookStore().fetchEntities(),
@@ -47,49 +56,60 @@ export const authorizationStore = defineStore('authorization', () => {
       router.push('/home');
     } catch (error) {
       console.error('🔥 Chyba při loginu:', error);
+      throw error;
     }
   }
 
-  function logOut() {
+  function logOut(): void {
     router.push('/login');
-    removeToken();
+    tokenManager.removeToken();
     isAuthenticated.value = false;
+    actualRole.value = '';
+    actualUsername.value = '';
+    showInfo('Odhlášení', 'Byl jsi úspěšně odhlášen.');
   }
 
-  function setToken(token: string) {
-    localStorage.setItem(tokenKey.value, token);
+  function initializeAuth(): void {
+    const token = tokenManager.getToken();
+    if (token && !tokenManager.isTokenExpired()) {
+      const tokenData = tokenManager.getTokenData();
+      if (tokenData) {
+        isAuthenticated.value = true;
+        actualUsername.value = tokenData.email;
+
+        // Nastav auto-logout pro existující token
+        tokenManager.setTokenExpiration(token, () => {
+          logOut();
+        });
+      }
+    } else if (token) {
+      // Token exists but is expired
+      logOut();
+    }
   }
 
-  // Získání tokenu
-  function getToken() {
-    return localStorage.getItem(tokenKey.value);
-  }
-
-  function removeToken() {
-    localStorage.removeItem(tokenKey.value);
-  }
-
-  //getters
-
+  // Getters
   const loggedUser = computed<User | null>(() => {
     return useUserStore().entities.find((user) => user.email === actualUsername.value) ?? null;
   });
-  function isLoggedIn() {
-    return isAuthenticated.value;
+
+  function isLoggedIn(): boolean {
+    return isAuthenticated.value && !tokenManager.isTokenExpired();
   }
 
   return {
-    //state
+    // State
     actualRole,
     actualUsername,
     isAuthenticated,
-    //actions
+    // Actions
     handleLogin,
     logOut,
-    setToken,
-    getToken,
-    removeToken,
-    //getters
+    initializeAuth,
+    // Token methods (exposed for convenience)
+    getToken: tokenManager.getToken,
+    isTokenExpired: tokenManager.isTokenExpired,
+    // Getters
     loggedUser,
     isLoggedIn,
   };
