@@ -8,6 +8,7 @@ defineProps<{
   items: Array<Entity>;
   displayDetailOnly?: boolean;
   handleDetail?: (data?: Entity) => void;
+  handleDelete?: (data?: Entity) => void;
 }>();
 </script>
 
@@ -16,10 +17,15 @@ defineProps<{
     <template #empty>{{ 'neni zaznamu' }}</template>
     <Column v-if="handleDetail" class="w-0">
       <template v-if="!displayDetailOnly" #header>
-        <Button size="small" @click="handleDetail()" icon="pi pi-plus"></Button>
+        <Button size="small" @click="handleDetail()" icon="pi pi-plus" />
       </template>
       <template #body="{ data }">
-        <Button size="small" outlined @click="handleDetail(data)" icon="pi pi-search"></Button>
+        <Button size="small" outlined @click="handleDetail(data)" icon="pi pi-search" />
+      </template>
+    </Column>
+    <Column v-if="handleDelete" class="w-0">
+      <template #body="{ data }">
+        <Button size="small" severity="danger" @click="handleDelete(data)" icon="pi pi-trash" />
       </template>
     </Column>
     <Column

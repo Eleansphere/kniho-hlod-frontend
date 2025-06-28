@@ -10,6 +10,7 @@ import { computed, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import type { FormDefinition } from '../form/types';
 import { useNotification } from '@/composables/useNotification';
+import { useDeleteConfirmation } from '@/composables/useDeleteConfirmation';
 
 const props = defineProps<{
   userId: string;
@@ -96,10 +97,33 @@ async function handleSubmit(data: Loan): Promise<void> {
     console.error(error);
   }
 }
+
+const { deleteWithConfirmation } = useDeleteConfirmation(
+  async (loan: ExtendedLoan) => {
+    try {
+      if (!loan) return;
+      await store.deleteEntity(loan.id);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  {
+    confirmMessage: 'Smazat výpujčku?',
+    successMessage: 'Výpujčka byla úspěšně smazána.',
+    errorMessage: 'Chyba při mazání výpujčky.',
+    notes: (loan) =>
+      `Pro knihu "${loan.bookEntity!.title}" vypůjčenou dne: ${new Intl.DateTimeFormat('cs-CZ').format(new Date(loan.loanDate))}`,
+  }
+);
 </script>
 
 <template>
   <h1 class="font-bold">Výpujčky</h1>
 
-  <Table :columns="columns" :items="availableLoans" :handle-detail="openDialog" />
+  <Table
+    :columns="columns"
+    :items="availableLoans"
+    :handle-detail="openDialog"
+    :handle-delete="deleteWithConfirmation"
+  />
 </template>

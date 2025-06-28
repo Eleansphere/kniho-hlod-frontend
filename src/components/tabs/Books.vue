@@ -7,6 +7,7 @@ import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { bookForm } from '../form/definitions/book';
 import { useNotification } from '@/composables/useNotification';
+import { useDeleteConfirmation } from '@/composables/useDeleteConfirmation';
 
 const props = defineProps<{
   userId: string;
@@ -75,6 +76,23 @@ async function handleSubmit(data: Book): Promise<void> {
   }
 }
 
+const { deleteWithConfirmation } = useDeleteConfirmation(
+  async (book: Book) => {
+    try {
+      if (!book) return;
+      await store.deleteEntity(book.id);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  {
+    confirmMessage: 'Smazat knihu?',
+    successMessage: 'Kniha byla úspěšně smazána.',
+    errorMessage: 'Chyba při mazání knihy.',
+    notes: (book) => `Od autora "${book.author}" s názvem: "${book.title}"`,
+  }
+);
+
 onMounted(() => {
   store.fetchEntities();
 });
@@ -86,6 +104,11 @@ onMounted(() => {
       <h1>Knihovna</h1>
     </div>
 
-    <Table :columns="columns" :items="availableBooks" :handle-detail="openDialog" />
+    <Table
+      :columns="columns"
+      :items="availableBooks"
+      :handle-detail="openDialog"
+      :handle-delete="deleteWithConfirmation"
+    />
   </div>
 </template>

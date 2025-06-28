@@ -7,6 +7,7 @@ import { User } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { useNotification } from '@/composables/useNotification';
+import { useDeleteConfirmation } from '@/composables/useDeleteConfirmation';
 
 const columns: Array<TableColumnDefinition> = [
   {
@@ -70,6 +71,23 @@ async function handleSubmit(data: User): Promise<void> {
   }
 }
 
+const { deleteWithConfirmation } = useDeleteConfirmation(
+  async (user: User) => {
+    try {
+      if (!user) return;
+      await store.deleteEntity(user.id);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  {
+    confirmMessage: 'Smazat uživatele?',
+    successMessage: 'Uživatel byl úspěšně smazán.',
+    errorMessage: 'Chyba při mazání uživatele.',
+    notes: (user) => `"${user.username}" s rolí "${user.role}" a emailem: "${user.email}"`,
+  }
+);
+
 onMounted(() => {
   store.fetchEntities();
 });
@@ -77,5 +95,10 @@ onMounted(() => {
 
 <template>
   <h1 class="font-bold">Administartor</h1>
-  <Table :columns="columns" :items="availableUsers" :handle-detail="openDialog" />
+  <Table
+    :columns="columns"
+    :items="availableUsers"
+    :handle-detail="openDialog"
+    :handle-delete="deleteWithConfirmation"
+  />
 </template>
