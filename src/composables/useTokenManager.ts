@@ -21,7 +21,6 @@ export function useTokenManager(tokenKey: string = 'auth-token') {
         clearTimeout(logoutTimeout);
       }
 
-      // Pokud token už expiroval nebo expiruje za méně než 5 sekund
       if (expiresInMs <= 5000) {
         console.log('Token already expired or expires very soon, logging out immediately...');
         onExpire();
@@ -34,7 +33,7 @@ export function useTokenManager(tokenKey: string = 'auth-token') {
       }, expiresInMs);
     } catch (error) {
       console.error('Error setting token expiration:', error);
-      onExpire(); // V případě chyby rovnou odhlásíme
+      onExpire();
     }
   }
 

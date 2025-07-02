@@ -6,8 +6,12 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const { getToken, isTokenExpired, isAuthenticated } = authorizationStore();
+router.beforeEach(async (to, from, next) => {
+  const { getToken, isTokenExpired, isAuthInitialized, initializeAuth } = authorizationStore();
+
+  if (!isAuthInitialized) {
+    await initializeAuth();
+  }
 
   const token = getToken();
 

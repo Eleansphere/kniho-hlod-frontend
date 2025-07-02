@@ -11,7 +11,14 @@ import { createApp } from 'vue';
 import App from '@/App.vue';
 import '@/assets/main.css';
 import router from '@/router';
+import { authorizationStore } from './stores/authorizationStore';
+
 const app = createApp(App);
+
+const pinia = createPinia();
+
+app.use(pinia);
+
 app.use(Primevue, {
   theme: {
     preset: Aura,
@@ -20,12 +27,13 @@ app.use(Primevue, {
     },
   },
 });
-app.use(router);
-app.use(createPinia());
 
+app.use(router);
 app.use(ToastService);
 app.use(DialogService);
 
+const store = authorizationStore();
+store.initializeAuth();
 // Volat např. v main.ts nebo store/index.ts
 registerEntityClass('userStore', User);
 registerEntityClass('bookStore', Book);

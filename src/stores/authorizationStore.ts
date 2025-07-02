@@ -18,7 +18,7 @@ export const authorizationStore = defineStore('authorization', () => {
   const actualRole = ref('');
   const actualUsername = ref('');
   const isAuthenticated = ref(false);
-
+  const isAuthInitialized = ref(false);
   // Actions
   async function handleLogin(userCredentials: Partial<User>): Promise<void> {
     try {
@@ -69,23 +69,26 @@ export const authorizationStore = defineStore('authorization', () => {
     showInfo('Odhlášení', 'Byl jsi úspěšně odhlášen.');
   }
 
-  function initializeAuth(): void {
+  async function initializeAuth(): Promise<void> {
     const token = tokenManager.getToken();
     if (token && !tokenManager.isTokenExpired()) {
       const tokenData = tokenManager.getTokenData();
       if (tokenData) {
         isAuthenticated.value = true;
         actualUsername.value = tokenData.email;
-
-        // Nastav auto-logout pro existující token
         tokenManager.setTokenExpiration(token, () => {
           logOut();
         });
       }
+      await Promise.all([
+        useUserStore().fetchEntities(),
+        useBookStore().fetchEntities(),
+        useLoanStore().fetchEntities(),
+      ]);
     } else if (token) {
-      // Token exists but is expired
       logOut();
     }
+    isAuthInitialized.value = true;
   }
 
   // Getters
@@ -106,7 +109,7 @@ export const authorizationStore = defineStore('authorization', () => {
     handleLogin,
     logOut,
     initializeAuth,
-    // Token methods (exposed for convenience)
+    isAuthInitialized,
     getToken: tokenManager.getToken,
     isTokenExpired: tokenManager.isTokenExpired,
     // Getters
