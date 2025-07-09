@@ -62,6 +62,7 @@ export const authorizationStore = defineStore('authorization', () => {
 
   function logOut(): void {
     router.push('/login');
+    console.log('mazu token', tokenManager.getToken());
     tokenManager.removeToken();
     isAuthenticated.value = false;
     actualRole.value = '';

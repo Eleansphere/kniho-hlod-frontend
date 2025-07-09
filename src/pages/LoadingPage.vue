@@ -3,15 +3,24 @@ import ProgressBar from 'primevue/progressbar';
 import { ref, onMounted } from 'vue';
 
 const progress = ref(0);
+const index = ref(0);
+
+const loadingText = [
+  'Hlodám vaše knížky...',
+  'Naháním nepoddajné tituly...',
+  'Vrtám se ve výpujčkách...',
+];
 
 onMounted(() => {
-  // Simuluj načítání, progres se bude zvyšovat na 100 za 3 vteřiny
   const interval = setInterval(() => {
     if (progress.value < 100) {
       progress.value += 2;
+
+      const step = Math.floor((progress.value / 100) * loadingText.length);
+
+      index.value = Math.min(step, loadingText.length - 1);
     } else {
       clearInterval(interval);
-      // emituj event, když je loading hotový
       emit('all-loaded');
     }
   }, 60);
@@ -23,18 +32,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div
-    class="w-full h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-100 to-blue-300"
-  >
-    <h2 class="mb-6 text-2xl font-semibold text-blue-900">Načítání aplikace...</h2>
-    <ProgressBar :value="progress" class="w-72" />
-  </div>
+  <Card class="opacity-95 w-[400px]">
+    <template #title>
+      <h2 class="mb-6 text-2xl font-semibold text-blue-900">{{ loadingText[index] }}</h2>
+    </template>
+    <template #content>
+      <ProgressBar :value="progress" mode="indeterminate" class="w-full" style="height: 1rem" />
+    </template>
+  </Card>
+  <div class="flex flex-col items-center justify-center"></div>
 </template>
-
-<style scoped>
-/* Přidáme jemný stín pod ProgressBar */
-.p-progressbar {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-}
-</style>
