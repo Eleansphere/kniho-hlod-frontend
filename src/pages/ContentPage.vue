@@ -8,7 +8,7 @@ import MyAccountPage from '../components/tabs/MyAccount.vue';
 import { authorizationStore } from '@/stores/authorizationStore';
 import type { MenuTab } from '@/types/mentuTab';
 
-const { loggedUser, actualUsername, actualRole, logOut } = authorizationStore();
+const { loggedUser, actualUsername, logOut } = authorizationStore();
 
 const menuTabs: Array<MenuTab> = [
   {
@@ -62,7 +62,7 @@ const menuTabs: Array<MenuTab> = [
 ];
 
 const availableTabs = computed(() => {
-  return menuTabs.filter((tab) => tab.roles.includes(actualRole));
+  return menuTabs.filter((tab) => tab.roles.includes(loggedUser!.role));
 });
 </script>
 
@@ -89,7 +89,7 @@ const availableTabs = computed(() => {
           </div>
         </TabList>
         <TabPanels>
-          <TabPanel v-for="tab in menuTabs" :key="tab.label" :value="tab.value">
+          <TabPanel v-for="tab in availableTabs" :key="tab.label" :value="tab.value">
             <component v-if="tab.content" :is="tab.content" v-bind="tab.props" />
             <span v-else>Obsah zatím není dostupný.</span>
           </TabPanel>

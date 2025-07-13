@@ -77,6 +77,7 @@ export const authorizationStore = defineStore('authorization', () => {
       if (tokenData) {
         isAuthenticated.value = true;
         actualUsername.value = tokenData.email;
+        actualRole.value = tokenData.role;
         tokenManager.setTokenExpiration(token, () => {
           logOut();
         });

@@ -5,6 +5,7 @@ type DecodedToken = {
   iat: number; // Issued at time in seconds
   id: string; // User ID or other identifier
   email: string; // User email
+  role: string; // User role
 };
 
 export function useTokenManager(tokenKey: string = 'auth-token') {
