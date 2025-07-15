@@ -17,7 +17,7 @@ export interface FormFieldDefinition<T> {
   placeholder?: string;
   hint?: string;
   options?: Array<{ label: string; value: any }>;
-  validators?: Array<(value: any) => string | null>;
+  validators?: FieldValidator<T>[];
   hidden?: boolean;
   disabled?: (model: T) => boolean;
   dependsOn?: Array<keyof T & string>;
@@ -37,3 +37,5 @@ export interface FormState<T> {
   isSubmitting: boolean;
   isValid: boolean;
 }
+
+export type FieldValidator<T = any> = (value: any, formData?: T) => string | null;
