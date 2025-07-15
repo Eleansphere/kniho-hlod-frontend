@@ -94,7 +94,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <h1 class="font-bold">Administartor</h1>
+  <h1 class="font-bold">Administrátor</h1>
   <Table
     :columns="columns"
     :items="availableUsers"

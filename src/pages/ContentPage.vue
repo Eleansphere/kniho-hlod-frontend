@@ -46,7 +46,7 @@ const menuTabs: Array<MenuTab> = [
   {
     label: 'Můj účet',
     content: MyAccountPage,
-    props: {},
+    props: { userId: loggedUser!.id },
     icon: 'pi pi-user',
     value: 4,
     roles: ['admin', 'user'],
@@ -67,7 +67,7 @@ const availableTabs = computed(() => {
 </script>
 
 <template>
-  <Card class="h-[80vh] opacity-95">
+  <Card class="h-[80vh]">
     <template #content>
       <Tabs :value="0" scrollable>
         <TabList>

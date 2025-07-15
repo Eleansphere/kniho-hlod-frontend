@@ -4,6 +4,8 @@ export interface UserAttributes {
   password: string;
   email: string;
   role: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export class User implements UserAttributes {
@@ -12,6 +14,8 @@ export class User implements UserAttributes {
   public password!: string;
   public email!: string;
   public role!: string;
+  public createdAt!: string;
+  public updatedAt!: string;
 }
 
 export interface LoggedUser {
@@ -27,6 +31,8 @@ export interface BookAttributes {
   publicationYear?: number;
   isAvailable: boolean;
   ownerId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export class Book implements BookAttributes {
@@ -37,6 +43,8 @@ export class Book implements BookAttributes {
   public publicationYear!: number;
   public isAvailable!: boolean;
   public ownerId!: string;
+  public createdAt!: string;
+  public updatedAt!: string;
 }
 
 export interface LoanAttributes {
@@ -46,6 +54,8 @@ export interface LoanAttributes {
   returnDate?: Date;
   bookId: string;
   ownerId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export class Loan implements LoanAttributes {
@@ -55,6 +65,8 @@ export class Loan implements LoanAttributes {
   public returnDate!: Date;
   public bookId!: string;
   public ownerId!: string;
+  public createdAt!: string;
+  public updatedAt!: string;
 }
 
 export type Entity = User | Book | Loan;
