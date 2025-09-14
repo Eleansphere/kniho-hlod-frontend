@@ -1,4 +1,4 @@
-import type { TableColumnDefinition } from './types';
+import type { ColumnDataType, TableColumnDefinition } from './types';
 
 export function getNestedValue(obj: any, path: string | string[]): any {
   // If path is a string, use it directly
@@ -16,25 +16,27 @@ export function getNestedValue(obj: any, path: string | string[]): any {
   return null;
 }
 
-// Helper function to format value based on column type
-export function formatValue(value: any, column: TableColumnDefinition): any {
+export function formatValue(value: ColumnDataType, column: TableColumnDefinition): any {
   if (!value) return value;
 
-  if (column.type === 'date') {
-    try {
-      const date = new Date(value);
-      if (isNaN(date.getTime())) return value;
-
-      // Format to DD.MM.YYYY
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear();
-
-      return `${day}.${month}.${year}`;
-    } catch (e) {
+  switch (column.type) {
+    case 'date':
+      return formatDateValue(value);
+    case 'boolean':
+      return value ? 'Ano' : 'Ne';
+    default:
       return value;
-    }
   }
+}
 
-  return value;
+function formatDateValue(value: ColumnDataType): string {
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return value;
+
+  // Format to DD.MM.YYYY
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}.${month}.${year}`;
 }

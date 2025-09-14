@@ -18,7 +18,11 @@ const columns: Array<TableColumnDefinition> = [
   { field: 'title', header: 'Název knihy', type: 'text' },
   { field: 'description', header: 'Popis', type: 'text' },
   { field: 'publicationYear', header: 'Rok vydání', type: 'number' },
-  { field: 'isAvailable', header: 'Dostupná', type: 'binary' },
+  {
+    field: 'isAvailable',
+    header: 'Dostupná',
+    type: 'boolean',
+  },
 ];
 
 // function formatGenre(value) {
