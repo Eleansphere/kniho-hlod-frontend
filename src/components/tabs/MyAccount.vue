@@ -36,7 +36,7 @@ function changePassword(): void {
     <Accordion :activeIndex="0">
       <AccordionTab>
         <template #header>
-          <div class="flex align-items-center gap-2">
+          <div class="flex items-center gap-2">
             <i class="pi pi-user"></i>
             <span>Osobní údaje</span>
           </div>
@@ -104,52 +104,48 @@ function changePassword(): void {
           />
         </div>
 
-        <Card v-if="showPasswordForm">
-          <template #content>
-            <div class="grid gap-3">
-              <div class="col-12 md:col-6">
-                <label for="newPassword" class="block font-medium mb-2">Nové heslo</label>
-                <Password
-                  id="newPassword"
-                  v-model="newPassword"
-                  placeholder="Zadejte nové heslo"
-                  toggleMask
-                  fluid
-                />
-              </div>
+        <div v-if="showPasswordForm" class="grid gap-3">
+          <div class="col-12 md:col-6">
+            <label for="newPassword" class="block font-medium mb-2">Nové heslo</label>
+            <Password
+              id="newPassword"
+              v-model="newPassword"
+              placeholder="Zadejte nové heslo"
+              toggleMask
+              fluid
+            />
+          </div>
 
-              <div class="col-12 md:col-6">
-                <label for="confirmPassword" class="block font-medium mb-2">Potvrzení hesla</label>
-                <Password
-                  id="confirmPassword"
-                  v-model="confirmPassword"
-                  placeholder="Potvrďte nové heslo"
-                  toggleMask
-                  :feedback="false"
-                  fluid
-                />
-              </div>
+          <div class="col-12 md:col-6">
+            <label for="confirmPassword" class="block font-medium mb-2">Potvrzení hesla</label>
+            <Password
+              id="confirmPassword"
+              v-model="confirmPassword"
+              placeholder="Potvrďte nové heslo"
+              toggleMask
+              :feedback="false"
+              fluid
+            />
+          </div>
 
-              <div class="col-12">
-                <div class="flex gap-2 justify-content-end mt-3">
-                  <Button
-                    label="Zrušit"
-                    icon="pi pi-times"
-                    outlined
-                    severity="secondary"
-                    @click="cancelPasswordChange"
-                  />
-                  <Button
-                    label="Změnit heslo"
-                    icon="pi pi-check"
-                    :loading="isSubmitting"
-                    @click="changePassword"
-                  />
-                </div>
-              </div>
+          <div class="col-12">
+            <div class="flex gap-2 justify-content-end mt-3">
+              <Button
+                label="Zrušit"
+                icon="pi pi-times"
+                outlined
+                severity="secondary"
+                @click="cancelPasswordChange"
+              />
+              <Button
+                label="Změnit heslo"
+                icon="pi pi-check"
+                :loading="isSubmitting"
+                @click="changePassword"
+              />
             </div>
-          </template>
-        </Card>
+          </div>
+        </div>
 
         <div v-else class="grid gap-3">
           <div class="col-12 md:col-6">
