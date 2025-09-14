@@ -28,6 +28,16 @@ defineProps<{
         <Button size="small" severity="danger" @click="handleDelete(data)" icon="pi pi-trash" />
       </template>
     </Column>
+    <Column v-if="$slots['action-column']" class="w-0">
+      <template #header>
+        <slot name="action-column-header" />
+      </template>
+      <template #body="{ data }">
+        <div class="flex gap-2">
+          <slot name="action-column" :row="data" />
+        </div>
+      </template>
+    </Column>
     <Column
       v-for="col in columns"
       :key="Array.isArray(col.field) ? col.field.join('.') : col.field"

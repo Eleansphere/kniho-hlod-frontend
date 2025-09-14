@@ -11,10 +11,16 @@ import GenericForm from '../form/GenericForm.vue';
 import type { FormDefinition } from '../form/types';
 import { useNotification } from '@/composables/useNotification';
 import { useDeleteConfirmation } from '@/composables/useDeleteConfirmation';
+import { icon } from '@primeuix/themes/aura/avatar';
 
 const props = defineProps<{
   userId: string;
 }>();
+
+const tabs = computed(() => [
+  { title: 'Aktivní', value: '0', content: activeLoans.value, icon: 'pi pi-calendar-plus' },
+  { title: 'Vrácené', value: '1', content: archivedLoans.value, icon: 'pi pi-history' },
+]);
 
 const columns: Array<TableColumnDefinition> = [
   { field: ['bookEntity', 'title'], header: 'Kniha', type: 'text' },
@@ -26,8 +32,12 @@ const columns: Array<TableColumnDefinition> = [
 const store = useLoanStore();
 const { loggedUser } = authorizationStore();
 
-const availableLoans = computed<Array<ExtendedLoan>>(() => {
+const activeLoans = computed<Array<ExtendedLoan>>(() => {
   return store.entities.filter((loan) => loan.ownerId === loggedUser?.id);
+});
+
+const archivedLoans = computed<Array<ExtendedLoan>>(() => {
+  return store.entities.filter((loan) => loan.ownerId === loggedUser?.id && loan.returned);
 });
 
 const dialog = usePreferredDialog();
@@ -116,15 +126,37 @@ const { deleteWithConfirmation } = useDeleteConfirmation(
       `Pro knihu "${loan.bookEntity!.title}" vypůjčenou dne: ${new Intl.DateTimeFormat('cs-CZ').format(new Date(loan.loanDate))}`,
   }
 );
+
+function markAsReturned(loan: ExtendedLoan): void {
+  console.log('Marking as returned:', loan);
+  if (!loan) return;
+  handleSubmit({ ...loan, isReturned: true });
+}
 </script>
 
 <template>
   <h1 class="font-bold">Výpujčky</h1>
 
-  <Table
-    :columns="columns"
-    :items="availableLoans"
-    :handle-detail="openDialog"
-    :handle-delete="deleteWithConfirmation"
-  />
+  <Tabs value="0">
+    <TabList>
+      <Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">
+        <i :class="tab.icon" :key="tab.icon"></i>
+        {{ tab.title }}
+      </Tab>
+    </TabList>
+    <TabPanels>
+      <TabPanel v-for="tab in tabs" :key="tab.title" :value="tab.value">
+        <Table
+          :columns="columns"
+          :items="tab.content"
+          :handle-detail="openDialog"
+          :handle-delete="deleteWithConfirmation"
+        >
+          <template #action-column="{ row }">
+            <Button @click="markAsReturned(row)" icon="pi pi-check" size="small" outlined></Button>
+          </template>
+        </Table>
+      </TabPanel>
+    </TabPanels>
+  </Tabs>
 </template>
