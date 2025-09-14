@@ -36,17 +36,18 @@ const currentLoan = ref<Loan>(new Loan());
 const isSubmitting = ref(false);
 
 const { showSaveSuccess, showSaveError } = useNotification();
+const bookStore = useBookStore();
 
 const availableBooks = computed(() => {
-  return useBookStore()
-    .entities.filter((book) => book.ownerId === loggedUser?.id)
+  return bookStore.entities
+    .filter((book) => book.ownerId === loggedUser?.id)
     .map((book) => ({
       label: book.title,
       value: book.id,
     }));
 });
 
-const editedLoanForm: FormDefinition<Loan> = {
+const editedLoanForm = computed<FormDefinition<Loan>>(() => ({
   ...loanForm,
   fields: [
     {
@@ -59,13 +60,13 @@ const editedLoanForm: FormDefinition<Loan> = {
     },
     ...loanForm.fields,
   ],
-};
+}));
 
 function openDialog(data: Loan): void {
   dialog.open(
     GenericForm,
     {
-      definition: editedLoanForm,
+      definition: editedLoanForm.value,
       modelValue: data,
       mode: data ? 'view' : 'create',
       submitting: isSubmitting.value,
