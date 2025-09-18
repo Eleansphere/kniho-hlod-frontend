@@ -1,43 +1,30 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { loanForm } from '@/components/form/definitions/loan';
-import type { TableColumnDefinition } from '@/components/table/types';
 import { authorizationStore } from '@/stores/authorizationStore';
 import { useBookStore } from '@/stores/entities/bookStore';
 import { useLoanStore, type ExtendedLoan } from '@/stores/entities/loanStore';
 import { Loan } from '@/types/entities';
 import { computed, ref } from 'vue';
-import GenericForm from '../form/GenericForm.vue';
-import type { FormDefinition } from '../form/types';
+import GenericForm from '@/components/form/GenericForm.vue';
+import type { FormDefinition } from '../../form/types';
 import { useNotification } from '@/composables/useNotification';
 import { useDeleteConfirmation } from '@/composables/useDeleteConfirmation';
-import { icon } from '@primeuix/themes/aura/avatar';
+import { getTabsDefinition, TABLE_DEFINITION } from './loans-table-definitions';
 
 const props = defineProps<{
   userId: string;
 }>();
 
-const tabs = computed(() => [
-  { title: 'Aktivní', value: '0', content: activeLoans.value, icon: 'pi pi-calendar-plus' },
-  { title: 'Vrácené', value: '1', content: archivedLoans.value, icon: 'pi pi-history' },
-]);
-
-const columns: Array<TableColumnDefinition> = [
-  { field: ['bookEntity', 'title'], header: 'Kniha', type: 'text' },
-  { field: 'borrower', header: 'Vypůjčil si', type: 'text' },
-  { field: 'loanDate', header: 'Datum vypůjčení', type: 'date' },
-  { field: 'returnDate', header: 'Datum vrácení', type: 'date' },
-];
-
 const store = useLoanStore();
 const { loggedUser } = authorizationStore();
 
 const activeLoans = computed<Array<ExtendedLoan>>(() => {
-  return store.entities.filter((loan) => loan.ownerId === loggedUser?.id);
+  return store.entities.filter((loan) => loan.ownerId === loggedUser?.id && !loan.isReturned);
 });
 
 const archivedLoans = computed<Array<ExtendedLoan>>(() => {
-  return store.entities.filter((loan) => loan.ownerId === loggedUser?.id && loan.returned);
+  return store.entities.filter((loan) => loan.ownerId === loggedUser?.id && loan.isReturned);
 });
 
 const dialog = usePreferredDialog();
@@ -50,12 +37,24 @@ const bookStore = useBookStore();
 
 const availableBooks = computed(() => {
   return bookStore.entities
-    .filter((book) => book.ownerId === loggedUser?.id)
+    .filter(
+      (book) =>
+        book.ownerId === props.userId && !store.entities.some((loan) => loan.bookId === book.id)
+    )
     .map((book) => ({
       label: book.title,
       value: book.id,
     }));
 });
+
+// const availableBooks = computed(() => {
+//   return bookStore.entities
+//     .filter((book) => book.ownerId === loggedUser?.id)
+//     .map((book) => ({
+//       label: book.title,
+//       value: book.id,
+//     }));
+// });
 
 const editedLoanForm = computed<FormDefinition<Loan>>(() => ({
   ...loanForm,
@@ -128,7 +127,6 @@ const { deleteWithConfirmation } = useDeleteConfirmation(
 );
 
 function markAsReturned(loan: ExtendedLoan): void {
-  console.log('Marking as returned:', loan);
   if (!loan) return;
   handleSubmit({ ...loan, isReturned: true });
 }
@@ -139,21 +137,47 @@ function markAsReturned(loan: ExtendedLoan): void {
 
   <Tabs value="0">
     <TabList>
-      <Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">
-        <i :class="tab.icon" :key="tab.icon"></i>
-        {{ tab.title }}
+      <Tab
+        v-for="tab in getTabsDefinition(activeLoans, archivedLoans)"
+        :key="tab.title"
+        :value="tab.value"
+      >
+        <div class="flex gap-2 items-center">
+          <Badge
+            v-if="tab.value === '0'"
+            :value="activeLoans.length"
+            severity="danger"
+            size="small"
+            class="self-start mb-2"
+          ></Badge>
+          <i :class="tab.icon" :key="tab.icon"></i>
+          <p>
+            {{ tab.title }}
+          </p>
+        </div>
       </Tab>
     </TabList>
     <TabPanels>
-      <TabPanel v-for="tab in tabs" :key="tab.title" :value="tab.value">
+      <TabPanel
+        v-for="tab in getTabsDefinition(activeLoans, archivedLoans)"
+        :key="tab.title"
+        :value="tab.value"
+      >
         <Table
-          :columns="columns"
+          :columns="TABLE_DEFINITION"
           :items="tab.content"
           :handle-detail="openDialog"
           :handle-delete="deleteWithConfirmation"
+          :display-detail-only="tab.value === '1'"
         >
           <template #action-column="{ row }">
-            <Button @click="markAsReturned(row)" icon="pi pi-check" size="small" outlined></Button>
+            <Button
+              v-if="!row.isReturned"
+              @click="markAsReturned(row)"
+              icon="pi pi-check"
+              size="small"
+              outlined
+            />
           </template>
         </Table>
       </TabPanel>

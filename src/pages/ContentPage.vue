@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import BooksPage from '../components/tabs/Books.vue';
-import LoansPage from '../components/tabs/Loans.vue';
+import LoansPage from '../components/tabs/loans/Loans.vue';
 import OverviewPage from '../components/tabs/Overview.vue';
 import AdministratorPage from '../components/tabs/Administrator.vue';
 import MyAccountPage from '../components/tabs/MyAccount.vue';

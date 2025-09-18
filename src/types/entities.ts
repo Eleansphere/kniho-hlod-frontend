@@ -54,6 +54,7 @@ export interface LoanAttributes {
   returnDate?: Date;
   bookId: string;
   ownerId: string;
+  isReturned?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -65,6 +66,7 @@ export class Loan implements LoanAttributes {
   public returnDate!: Date;
   public bookId!: string;
   public ownerId!: string;
+  public isReturned!: boolean;
   public createdAt!: string;
   public updatedAt!: string;
 }
