@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
-import { loanForm } from '@/components/form/definitions/loan';
+import { loanForm } from '@/components/tabs/loans/loans-form-definition';
 import { authorizationStore } from '@/stores/authorization-store';
 import { useBookStore } from '@/stores/entities/book-store';
 import { getActiveLoans, useLoanStore, type ExtendedLoan } from '@/stores/entities/loan-store';

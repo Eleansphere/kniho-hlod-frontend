@@ -3,11 +3,11 @@ import type { ExtendedLoan } from '@/stores/entities/loan-store';
 import { computed } from 'vue';
 
 export function getTabsDefinition(active: Array<ExtendedLoan>, archived: Array<ExtendedLoan>) {
-  const tabs = computed(() => [
+  const TABS = computed(() => [
     { title: 'Aktivní', value: '0', content: active, icon: 'pi pi-calendar-plus' },
     { title: 'Vrácené', value: '1', content: archived, icon: 'pi pi-history' },
   ]);
-  return tabs.value;
+  return TABS.value;
 }
 
 export const TABLE_DEFINITION: Array<TableColumnDefinition> = [

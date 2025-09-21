@@ -1,35 +1,18 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
-import type { TableColumnDefinition } from '@/components/table/types';
 import { useBookStore, type ExtendedBook } from '@/stores/entities/book-store';
 import { Book } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
-import GenericForm from '../form/GenericForm.vue';
-import { bookForm } from '../form/definitions/book';
+import GenericForm from '../../form/GenericForm.vue';
+import { bookForm } from '../books/books-form-definition';
 import { useNotification } from '@/composables/use-notification';
 import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
 import { useLoanStore } from '@/stores/entities/loan-store';
+import { getTabsDefinition, TABLE_DEFINITION } from './books-table-definition';
 
 const props = defineProps<{
   userId: string;
 }>();
-
-const tabs = computed(() => [
-  { title: 'Zapůjčené', value: '0', content: borrowedBooks.value, icon: 'pi pi-bookmark-fill' },
-  { title: 'Nezapůjčené', value: '1', content: availableBooks.value, icon: 'pi pi-bookmark' },
-]);
-
-const columns: Array<TableColumnDefinition> = [
-  { field: 'author', header: 'Autor', type: 'text' },
-  { field: 'title', header: 'Název knihy', type: 'text' },
-  { field: 'description', header: 'Popis', type: 'text' },
-  { field: 'publicationYear', header: 'Rok vydání', type: 'number' },
-  {
-    field: 'isAvailable',
-    header: 'Dostupná',
-    type: 'boolean',
-  },
-];
 
 const store = useBookStore();
 const loanStore = useLoanStore();
@@ -121,15 +104,23 @@ onMounted(() => {
     </div>
     <Tabs value="0">
       <TabList>
-        <Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">
+        <Tab
+          v-for="tab in getTabsDefinition(borrowedBooks, availableBooks)"
+          :key="tab.title"
+          :value="tab.value"
+        >
           <i :class="tab.icon" :key="tab.icon"></i>
           {{ tab.title }}
         </Tab>
       </TabList>
       <TabPanels>
-        <TabPanel v-for="tab in tabs" :key="tab.title" :value="tab.value">
+        <TabPanel
+          v-for="tab in getTabsDefinition(borrowedBooks, availableBooks)"
+          :key="tab.title"
+          :value="tab.value"
+        >
           <Table
-            :columns="columns"
+            :columns="TABLE_DEFINITION"
             :items="tab.content"
             :handle-detail="openDialog"
             :handle-delete="deleteWithConfirmation"
