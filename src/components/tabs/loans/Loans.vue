@@ -143,13 +143,6 @@ function markAsReturned(loan: ExtendedLoan): void {
         :value="tab.value"
       >
         <div class="flex gap-2 items-center">
-          <Badge
-            v-if="tab.value === '0'"
-            :value="activeLoans.length"
-            severity="danger"
-            size="small"
-            class="self-start mb-2"
-          ></Badge>
           <i :class="tab.icon" :key="tab.icon"></i>
           <p>
             {{ tab.title }}

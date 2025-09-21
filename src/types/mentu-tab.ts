@@ -7,4 +7,5 @@ export interface MenuTab {
   props: Record<string, string | null>;
   value: number;
   roles: Array<string>;
+  badge?: { value: number; severity: string };
 }

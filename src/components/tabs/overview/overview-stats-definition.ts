@@ -18,19 +18,19 @@ export const overviewStats = computed<Array<OverviewStatsTab>>(() => {
       label: 'Aktivní výpůjčky',
       color: '#34d399',
       value: getActiveLoans(loggedUser!.id).length,
-      icon: 'pi pi-table',
+      icon: 'pi pi-calendar-clock',
     },
     {
       label: 'Celkem výpůjček',
       color: '#60a5fa',
       value: getAllLoans(loggedUser!.id).length,
-      icon: 'pi pi-image',
+      icon: 'pi pi-inbox',
     },
     {
       label: 'Počet knih',
-      color: '#fbbf24',
+      color: '#aaaf24',
       value: getAllBooks(loggedUser!.id).length,
-      icon: 'pi pi-inbox',
+      icon: 'pi pi-book',
     },
   ];
 });

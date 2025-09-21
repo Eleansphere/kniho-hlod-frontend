@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import BooksPage from '../components/tabs/Books.vue';
+import BooksPage from '../components/tabs/books/Books.vue';
 import LoansPage from '../components/tabs/loans/Loans.vue';
 import OverviewPage from '../components/tabs/overview/Overview.vue';
 import AdministratorPage from '../components/tabs/Administrator.vue';
 import MyAccountPage from '../components/tabs/MyAccount.vue';
 import { authorizationStore } from '@/stores/authorization-store';
 import type { MenuTab } from '@/types/mentu-tab';
+import { getActiveLoans } from '@/stores/entities/loan-store';
 
-const { loggedUser, actualUsername, logOut } = authorizationStore();
+const { loggedUser, logOut } = authorizationStore();
+const activeLoans = computed(() => {
+  return getActiveLoans(loggedUser!.id).length;
+});
 
 const menuTabs: Array<MenuTab> = [
   {
@@ -62,7 +66,14 @@ const menuTabs: Array<MenuTab> = [
 ];
 
 const availableTabs = computed(() => {
-  return menuTabs.filter((tab) => tab.roles.includes(loggedUser!.role));
+  return menuTabs
+    .filter((tab) => tab.roles.includes(loggedUser!.role))
+    .map((tab) => {
+      if (tab.value === 1) {
+        return { ...tab, badge: { value: activeLoans.value, severity: 'danger' } };
+      }
+      return tab;
+    });
 });
 </script>
 
@@ -74,7 +85,13 @@ const availableTabs = computed(() => {
           <div class="flex items-center w-full">
             <Tab v-for="tab in availableTabs" :key="tab.label" :value="tab.value">
               <span class="flex items-center gap-2">
-                <i :class="tab.icon"></i>
+                <OverlayBadge
+                  :value="tab.badge?.value || null"
+                  :severity="tab.badge?.severity || null"
+                  class="tab-badge"
+                >
+                  <i :class="tab.icon" style="font-size: 1.6rem"></i>
+                </OverlayBadge>
                 <span>{{ tab.label }}</span>
               </span>
             </Tab>
@@ -84,7 +101,7 @@ const availableTabs = computed(() => {
               image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png"
               shape="circle"
             />
-            <span>{{ actualUsername }}</span>
+            <span>{{ loggedUser?.username }}</span>
             <Button @click="logOut" icon="pi pi-sign-out" rounded />
           </div>
         </TabList>
@@ -98,3 +115,9 @@ const availableTabs = computed(() => {
     </template>
   </Card>
 </template>
+
+<style>
+.tab-badge .p-badge.p-badge-dot {
+  display: none !important;
+}
+</style>
