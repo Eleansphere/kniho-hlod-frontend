@@ -1,6 +1,8 @@
 // Base entity interface
 export interface BaseEntity {
   id: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Type to create extended entities with additional properties

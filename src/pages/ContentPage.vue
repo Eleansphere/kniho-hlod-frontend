@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import BooksPage from '../components/tabs/Books.vue';
 import LoansPage from '../components/tabs/loans/Loans.vue';
-import OverviewPage from '../components/tabs/Overview.vue';
+import OverviewPage from '../components/tabs/overview/Overview.vue';
 import AdministratorPage from '../components/tabs/Administrator.vue';
 import MyAccountPage from '../components/tabs/MyAccount.vue';
 import { authorizationStore } from '@/stores/authorizationStore';

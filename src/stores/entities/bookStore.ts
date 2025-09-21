@@ -12,3 +12,7 @@ export const useBookStore = defineEntityStore<Book, ExtendBook>(
   {},
   { apiUrl: API_ENDPOINTS.books }
 );
+
+export function getAllBooks(userId: string): Array<ExtendedBook> {
+  return useBookStore().entities.filter((book) => book.ownerId === userId);
+}

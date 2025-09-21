@@ -4,6 +4,8 @@ import type { Book, Loan, User } from '@/types/entities';
 import type { CreateExtendedEntity } from '@/types/storeDefinition';
 import { useBookStore } from './bookStore';
 import { useUserStore } from './userStore';
+import { authorizationStore } from '../authorizationStore';
+import { sortBy } from '@/utils/date';
 
 type ExtendLoan = {
   userEntity: User | null;
@@ -28,3 +30,25 @@ export const useLoanStore = defineEntityStore<Loan, ExtendLoan>(
     apiUrl: API_ENDPOINTS.loans,
   }
 );
+
+export function getAllLoans(userId: string): Array<ExtendedLoan> {
+  const store = useLoanStore();
+  return store.entities.filter((loan) => loan.ownerId === userId);
+}
+
+export function getActiveLoans(userId: string): Array<ExtendedLoan> {
+  const store = useLoanStore();
+  return store.entities.filter((loan) => loan.ownerId === userId && !loan.isReturned);
+}
+
+export function getLatestLoan(): ExtendedLoan {
+  const { loggedUser } = authorizationStore();
+  const activeLoans = getActiveLoans(loggedUser!.id);
+  return sortBy(activeLoans, 'createdAt')[0];
+}
+
+export function getEarliestLoanReturn(): ExtendedLoan {
+  const { loggedUser } = authorizationStore();
+  const activeLoans = getActiveLoans(loggedUser!.id);
+  return sortBy(activeLoans, 'returnDate')[0];
+}
