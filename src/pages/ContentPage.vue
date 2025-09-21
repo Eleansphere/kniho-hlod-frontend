@@ -86,7 +86,7 @@ const availableTabs = computed(() => {
             <Tab v-for="tab in availableTabs" :key="tab.label" :value="tab.value">
               <span class="flex items-center gap-2">
                 <OverlayBadge
-                  :value="tab.badge?.value || null"
+                  :value="tab.badge?.value || undefined"
                   :severity="tab.badge?.severity || null"
                   class="tab-badge"
                 >
