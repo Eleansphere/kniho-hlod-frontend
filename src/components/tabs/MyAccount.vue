@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { authorizationStore } from '@/stores/authorizationStore';
+import { authorizationStore } from '@/stores/authorization-store';
 import { ref } from 'vue';
 import { formatDate } from '@/utils/date';
 const props = defineProps<{

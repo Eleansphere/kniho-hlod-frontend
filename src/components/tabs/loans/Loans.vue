@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { loanForm } from '@/components/form/definitions/loan';
-import { authorizationStore } from '@/stores/authorizationStore';
-import { useBookStore } from '@/stores/entities/bookStore';
-import { getActiveLoans, useLoanStore, type ExtendedLoan } from '@/stores/entities/loanStore';
+import { authorizationStore } from '@/stores/authorization-store';
+import { useBookStore } from '@/stores/entities/book-store';
+import { getActiveLoans, useLoanStore, type ExtendedLoan } from '@/stores/entities/loan-store';
 import { Loan } from '@/types/entities';
 import { computed, ref } from 'vue';
 import GenericForm from '@/components/form/GenericForm.vue';
 import type { FormDefinition } from '../../form/types';
-import { useNotification } from '@/composables/useNotification';
-import { useDeleteConfirmation } from '@/composables/useDeleteConfirmation';
+import { useNotification } from '@/composables/use-notification';
+import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
 import { getTabsDefinition, TABLE_DEFINITION } from './loans-table-definitions';
 
 const props = defineProps<{

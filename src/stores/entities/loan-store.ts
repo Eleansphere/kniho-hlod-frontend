@@ -1,10 +1,10 @@
-import { API_ENDPOINTS } from '@/stores/apiEndPoints';
-import { defineEntityStore } from '@/stores/entityStore';
+import { API_ENDPOINTS } from '@/stores/api-end-points';
+import { defineEntityStore } from '@/stores/entity-store';
 import type { Book, Loan, User } from '@/types/entities';
-import type { CreateExtendedEntity } from '@/types/storeDefinition';
-import { useBookStore } from './bookStore';
-import { useUserStore } from './userStore';
-import { authorizationStore } from '../authorizationStore';
+import type { CreateExtendedEntity } from '@/types/store-definition';
+import { useBookStore } from './book-store';
+import { useUserStore } from './user-store';
+import { authorizationStore } from '../authorization-store';
 import { sortBy } from '@/utils/date';
 
 type ExtendLoan = {

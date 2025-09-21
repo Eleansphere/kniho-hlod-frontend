@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { getEntityClass } from './entityClassRegistry';
-import { authorizationStore } from './authorizationStore';
+import { getEntityClass } from './entity-class-registry';
+import { authorizationStore } from './authorization-store';
 import type {
   BaseEntity,
   CreateExtendedEntity,
   EntityExtension,
   EntityStoreConfig,
-} from '@/types/storeDefinition';
+} from '@/types/store-definition';
 
 export function defineEntityStore<TEntity extends BaseEntity, TExtend = {}>(
   storeName: string,

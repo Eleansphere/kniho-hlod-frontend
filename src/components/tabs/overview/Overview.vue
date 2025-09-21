@@ -1,6 +1,6 @@
 <script setup>
 import { overviewStats, lastBorrowedBook, earliestLoanReturn } from './overview-stats-definition';
-import { authorizationStore } from '@/stores/authorizationStore';
+import { authorizationStore } from '@/stores/authorization-store';
 
 const { loggedUser } = authorizationStore();
 </script>

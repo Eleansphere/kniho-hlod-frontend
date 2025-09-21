@@ -5,8 +5,8 @@ import LoansPage from '../components/tabs/loans/Loans.vue';
 import OverviewPage from '../components/tabs/overview/Overview.vue';
 import AdministratorPage from '../components/tabs/Administrator.vue';
 import MyAccountPage from '../components/tabs/MyAccount.vue';
-import { authorizationStore } from '@/stores/authorizationStore';
-import type { MenuTab } from '@/types/mentuTab';
+import { authorizationStore } from '@/stores/authorization-store';
+import type { MenuTab } from '@/types/mentu-tab';
 
 const { loggedUser, actualUsername, logOut } = authorizationStore();
 

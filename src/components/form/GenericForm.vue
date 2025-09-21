@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormDefinition } from '@/components/form/types';
-import { useFormState } from '@/composables/useFormState';
+import { useFormState } from '@/composables/use-form-state';
 import { DatePicker } from 'primevue';
 import { computed, watch } from 'vue';
 

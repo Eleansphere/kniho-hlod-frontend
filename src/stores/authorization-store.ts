@@ -2,12 +2,12 @@ import router from '@/router';
 import type { User } from '@/types/entities';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { API_ENDPOINTS } from './apiEndPoints';
-import { useBookStore } from './entities/bookStore';
-import { useLoanStore } from './entities/loanStore';
-import { useUserStore } from './entities/userStore';
-import { useTokenManager } from '@/composables/useTokenManager';
-import { useNotification } from '@/composables/useNotification';
+import { API_ENDPOINTS } from './api-end-points';
+import { useBookStore } from './entities/book-store';
+import { useLoanStore } from './entities/loan-store';
+import { useUserStore } from './entities/user-store';
+import { useTokenManager } from '@/composables/use-token-manager';
+import { useNotification } from '@/composables/use-notification';
 
 export const authorizationStore = defineStore('authorization', () => {
   const apiUrl = API_ENDPOINTS.userLogin;

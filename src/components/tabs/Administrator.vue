@@ -2,12 +2,12 @@
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { userForm } from '@/components/form/definitions/user';
 import type { TableColumnDefinition } from '@/components/table/types';
-import { useUserStore } from '@/stores/entities/userStore';
+import { useUserStore } from '@/stores/entities/user-store';
 import { User } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
-import { useNotification } from '@/composables/useNotification';
-import { useDeleteConfirmation } from '@/composables/useDeleteConfirmation';
+import { useNotification } from '@/composables/use-notification';
+import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
 
 const columns: Array<TableColumnDefinition> = [
   {

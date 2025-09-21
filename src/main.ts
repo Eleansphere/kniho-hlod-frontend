@@ -1,4 +1,4 @@
-import { registerEntityClass } from '@/stores/entityClassRegistry';
+import { registerEntityClass } from '@/stores/entity-class-registry';
 import { Book, Loan, User } from '@/types/entities';
 import Aura from '@primeuix/themes/aura';
 import { createPinia } from 'pinia';
@@ -11,7 +11,7 @@ import { createApp } from 'vue';
 import App from '@/App.vue';
 import '@/assets/main.css';
 import router from '@/router';
-import { authorizationStore } from './stores/authorizationStore';
+import { authorizationStore } from './stores/authorization-store';
 
 const app = createApp(App);
 

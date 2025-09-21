@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import type { TableColumnDefinition } from '@/components/table/types';
-import { useBookStore, type ExtendedBook } from '@/stores/entities/bookStore';
+import { useBookStore, type ExtendedBook } from '@/stores/entities/book-store';
 import { Book } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { bookForm } from '../form/definitions/book';
-import { useNotification } from '@/composables/useNotification';
-import { useDeleteConfirmation } from '@/composables/useDeleteConfirmation';
-import { useLoanStore } from '@/stores/entities/loanStore';
+import { useNotification } from '@/composables/use-notification';
+import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
+import { useLoanStore } from '@/stores/entities/loan-store';
 
 const props = defineProps<{
   userId: string;

@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { routes } from './routes';
-import { authorizationStore } from '@/stores/authorizationStore';
+import { authorizationStore } from '@/stores/authorization-store';
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,

@@ -2,10 +2,10 @@
 import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { registrationForm } from '@/components/form/definitions/registration';
 import GenericForm from '@/components/form/GenericForm.vue';
-import { useNotification } from '@/composables/useNotification';
+import { useNotification } from '@/composables/use-notification';
 import router from '@/router';
-import { authorizationStore } from '@/stores/authorizationStore';
-import { useUserStore } from '@/stores/entities/userStore';
+import { authorizationStore } from '@/stores/authorization-store';
+import { useUserStore } from '@/stores/entities/user-store';
 import { User } from '@/types/entities';
 import { reactive, ref } from 'vue';
 
@@ -118,6 +118,7 @@ async function handleRegistration(data: User): Promise<void> {
           type="password"
           placehoder="Password"
           class="w-full mb-4"
+          @keyup.enter="handleAuthorization"
         />
         <!-- <div class="flex items-center justify-between mb-8">
           <div class="flex items-center">

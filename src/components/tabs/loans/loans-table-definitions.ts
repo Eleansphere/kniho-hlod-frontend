@@ -1,5 +1,5 @@
 import type { TableColumnDefinition } from '@/components/table/types';
-import type { ExtendedLoan } from '@/stores/entities/loanStore';
+import type { ExtendedLoan } from '@/stores/entities/loan-store';
 import { computed } from 'vue';
 
 export function getTabsDefinition(active: Array<ExtendedLoan>, archived: Array<ExtendedLoan>) {

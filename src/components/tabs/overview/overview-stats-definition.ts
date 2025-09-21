@@ -1,12 +1,12 @@
-import { authorizationStore } from '@/stores/authorizationStore';
-import { getAllBooks } from '@/stores/entities/bookStore';
+import { authorizationStore } from '@/stores/authorization-store';
+import { getAllBooks } from '@/stores/entities/book-store';
 import {
   getActiveLoans,
   getAllLoans,
   getEarliestLoanReturn,
   getLatestLoan,
   type ExtendedLoan,
-} from '@/stores/entities/loanStore';
+} from '@/stores/entities/loan-store';
 import type { OverviewStatsTab } from '@/types/overview-stats';
 import { computed } from 'vue';
 
