@@ -3,7 +3,7 @@ import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { loanForm } from '@/components/form/definitions/loan';
 import { authorizationStore } from '@/stores/authorizationStore';
 import { useBookStore } from '@/stores/entities/bookStore';
-import { useLoanStore, type ExtendedLoan } from '@/stores/entities/loanStore';
+import { getActiveLoans, useLoanStore, type ExtendedLoan } from '@/stores/entities/loanStore';
 import { Loan } from '@/types/entities';
 import { computed, ref } from 'vue';
 import GenericForm from '@/components/form/GenericForm.vue';
@@ -20,7 +20,7 @@ const store = useLoanStore();
 const { loggedUser } = authorizationStore();
 
 const activeLoans = computed<Array<ExtendedLoan>>(() => {
-  return store.entities.filter((loan) => loan.ownerId === loggedUser?.id && !loan.isReturned);
+  return getActiveLoans(loggedUser!.id);
 });
 
 const archivedLoans = computed<Array<ExtendedLoan>>(() => {
