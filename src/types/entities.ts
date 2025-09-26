@@ -1,3 +1,9 @@
+export class CoreEntity {
+  public id!: string;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
 export interface UserAttributes {
   id?: string;
   username: string;
@@ -69,6 +75,18 @@ export class Loan implements LoanAttributes {
   public isReturned!: boolean;
   public createdAt!: string;
   public updatedAt!: string;
+}
+
+export interface ProfileImageAtributes {
+  name: string;
+  avatar: string;
+  user: string;
+}
+
+export class ProfileImage extends CoreEntity implements ProfileImageAtributes {
+  public name!: string;
+  public avatar!: string;
+  public user!: string;
 }
 
 export type Entity = User | Book | Loan;

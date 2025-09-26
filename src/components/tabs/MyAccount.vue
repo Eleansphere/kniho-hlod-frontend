@@ -56,6 +56,19 @@ function changePassword(): void {
             /> -->
           </div>
           <div class="flex-1">
+            <div class="card flex flex-wrap gap-6 items-center justify-between">
+              <FileUpload
+                ref="fileupload"
+                mode="basic"
+                name="demo[]"
+                url="/api/upload"
+                accept="image/*"
+                :maxFileSize="1000000"
+                @upload="onUpload"
+              />
+              <Button label="Upload" @click="upload" severity="secondary" />
+            </div>
+
             <Button
               label="Změnit profilovku"
               icon="pi pi-image"
