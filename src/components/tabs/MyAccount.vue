@@ -2,6 +2,8 @@
 import { authorizationStore } from '@/stores/authorization-store';
 import { ref } from 'vue';
 import { formatDate } from '@/utils/date';
+import { API_ENDPOINTS } from '@/stores/api-end-points';
+import { useFileStore } from '@/stores/entities/profile-file-store';
 const props = defineProps<{
   userId: string;
 }>();
@@ -28,6 +30,11 @@ function changePassword(): void {
   // Placeholder for password change logic
   console.log('Change password clicked');
 }
+
+const fileStore = useFileStore();
+const fileUpload = ref();
+function upload() {}
+function onUpload() {}
 </script>
 
 <template>
@@ -58,10 +65,10 @@ function changePassword(): void {
           <div class="flex-1">
             <div class="card flex flex-wrap gap-6 items-center justify-between">
               <FileUpload
-                ref="fileupload"
+                :ref="fileUpload"
                 mode="basic"
                 name="demo[]"
-                url="/api/upload"
+                :url="API_ENDPOINTS.files"
                 accept="image/*"
                 :maxFileSize="1000000"
                 @upload="onUpload"

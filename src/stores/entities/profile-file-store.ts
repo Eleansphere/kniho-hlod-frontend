@@ -3,12 +3,12 @@ import { defineEntityStore } from '@/stores/entity-store';
 import type { ProfileImage } from '@/types/entities';
 import type { CreateExtendedEntity } from '@/types/store-definition';
 
-type ExtendProfileImage = {};
+type ExtendFile = {};
 
-export type ExtendedBook = CreateExtendedEntity<ProfileImage, ExtendProfileImage>;
+export type ExtendedFile = CreateExtendedEntity<ProfileImage, ExtendFile>;
 
-export const useBookStore = defineEntityStore<ProfileImage, ExtendProfileImage>(
+export const useFileStore = defineEntityStore<ProfileImage, ExtendFile>(
   'profileImageStore',
   {},
-  { apiUrl: API_ENDPOINTS.profileImages }
+  { apiUrl: API_ENDPOINTS.files }
 );
