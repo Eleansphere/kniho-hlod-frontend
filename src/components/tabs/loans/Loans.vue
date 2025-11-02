@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { loanForm } from '@/components/tabs/loans/loans-form-definition';
 import { authorizationStore } from '@/stores/authorization-store';
 import { useBookStore } from '@/stores/entities/book-store';
@@ -11,6 +10,7 @@ import type { FormDefinition } from '../../form/types';
 import { useNotification } from '@/composables/use-notification';
 import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
 import { getTabsDefinition, TABLE_DEFINITION } from './loans-table-definitions';
+import { usePreferredDialog } from '@/composables/use-preferred-dialog';
 
 const props = defineProps<{
   userId: string;

@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { registrationForm } from '@/components/form/definitions/registration';
 import GenericForm from '@/components/form/GenericForm.vue';
 import { useNotification } from '@/composables/use-notification';
-import router from '@/router';
+import { usePreferredDialog } from '@/composables/use-preferred-dialog';
 import { authorizationStore } from '@/stores/authorization-store';
 import { useUserStore } from '@/stores/entities/user-store';
 import { User } from '@/types/entities';

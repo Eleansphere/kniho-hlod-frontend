@@ -1,50 +1,24 @@
 <script setup lang="ts">
-import { inject, markRaw } from 'vue';
+import { computed, inject } from 'vue';
+
 const dialogRef = inject<any>('dialogRef');
-</script>
 
-<script lang="ts">
-import DialogHelper from '@/components/DialogHelper.vue';
-import { useDialog } from 'primevue/usedialog';
-import type { Component } from 'vue';
-import type { DialogProps } from 'primevue/dialog';
-import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions';
-import type { ComponentProps } from 'vue-component-type-helpers';
+// Vytvoření handleru pro custom události
+const customEventHandlers = computed(() => {
+  const handlers: Record<string, Function> = {};
 
-export function usePreferredDialog() {
-  const d = useDialog();
+  // Pokud jsou definované custom event handlery v dialogRef.data
+  if (dialogRef.value.data.eventHandlers) {
+    Object.keys(dialogRef.value.data.eventHandlers).forEach((eventName) => {
+      handlers[eventName] = (...args: any[]) => {
+        // Zavolání custom handleru s argumenty
+        dialogRef.value.data.eventHandlers[eventName](...args);
+      };
+    });
+  }
 
-  let dialogRef: any = null;
-
-  return {
-    open<C extends Component>(
-      is: C,
-      props: ComponentProps<C> & { onSubmit?: (value: any) => void },
-      dialog: DialogProps,
-      onClose?: DynamicDialogOptions['onClose']
-    ) {
-      dialogRef = d.open(DialogHelper, {
-        onClose,
-        props: {
-          style: {
-            'max-width': '75%',
-          },
-          ...dialog,
-          modal: true,
-          draggable: false,
-        },
-        data: { is: markRaw(is), props },
-      });
-
-      return dialogRef;
-    },
-    close() {
-      if (dialogRef) {
-        dialogRef.close();
-      }
-    },
-  };
-}
+  return handlers;
+});
 </script>
 
 <template>
@@ -52,6 +26,6 @@ export function usePreferredDialog() {
     :is="dialogRef.data.is"
     v-bind="dialogRef.data.props"
     @close="dialogRef.close"
-    @submit="dialogRef.data.props.onSubmit"
+    v-on="customEventHandlers"
   />
 </template>

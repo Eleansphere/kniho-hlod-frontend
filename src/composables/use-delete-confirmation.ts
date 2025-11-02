@@ -1,5 +1,5 @@
-import { usePreferredDialog } from '../components/DialogHelper.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
+import { usePreferredDialog } from './use-preferred-dialog';
 
 const confirmButtonStyle = {
   label: 'Potvrdit',

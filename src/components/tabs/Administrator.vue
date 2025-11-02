@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { userForm } from '@/components/form/definitions/user';
 import type { TableColumnDefinition } from '@/components/table/types';
 import { useUserStore } from '@/stores/entities/user-store';
@@ -8,6 +7,7 @@ import { computed, onMounted, ref } from 'vue';
 import GenericForm from '../form/GenericForm.vue';
 import { useNotification } from '@/composables/use-notification';
 import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
+import { usePreferredDialog } from '@/composables/use-preferred-dialog';
 
 const columns: Array<TableColumnDefinition> = [
   {

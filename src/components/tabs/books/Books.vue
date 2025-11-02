@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { usePreferredDialog } from '@/components/DialogHelper.vue';
 import { useBookStore, type ExtendedBook } from '@/stores/entities/book-store';
 import { Book } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
-import GenericForm from '../../form/GenericForm.vue';
 import { bookForm } from '../books/books-form-definition';
 import { useNotification } from '@/composables/use-notification';
 import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
 import { useLoanStore } from '@/stores/entities/loan-store';
 import { getTabsDefinition, TABLE_DEFINITION } from './books-table-definition';
+import { useFormDialog } from '@/composables/use-form-dialog';
 
 const props = defineProps<{
   userId: string;
@@ -32,29 +31,22 @@ const borrowedBooks = computed<Array<ExtendedBook>>(() => {
   });
 });
 
-const dialog = usePreferredDialog();
-
-const currentBook = ref<Book>(new Book());
 const isSubmitting = ref(false);
 const { showSaveSuccess, showSaveError } = useNotification();
 
+const { openFormDialog } = useFormDialog();
+
 function openDialog(data: Book): void {
-  dialog.open(
-    GenericForm,
-    {
-      definition: bookForm,
-      modelValue: data,
-      mode: data ? 'view' : 'create',
-      submitting: isSubmitting.value,
-      'onUpdate:modelValue': (val) => (currentBook.value = val),
-      onSubmit: handleSubmit,
+  openFormDialog({
+    definition: bookForm,
+    modelValue: data ?? { ...new Book() },
+    onSave: async (content) => {
+      await handleSubmit(content);
     },
-    {
-      modal: true,
-      header: data ? `Detail knihy: ${data.title} ` : 'Nová kniha',
-      style: { width: '500px' },
-    }
-  );
+    mode: data ? 'view' : 'create',
+    submitting: isSubmitting.value,
+    header: data ? `Detail knihy: ${data.title} ` : 'Nová kniha',
+  });
 }
 
 async function handleSubmit(data: Book): Promise<void> {
@@ -66,7 +58,6 @@ async function handleSubmit(data: Book): Promise<void> {
     await store.saveEntity(bookToSave);
 
     showSaveSuccess('Úspěch', 'Kniha byla úspěšně uložena.');
-    dialog.close();
   } catch (error) {
     showSaveError('Chyba', 'Knihu se nepodařilo uložit.');
     console.error('Chyba při ukládání knihy:', error);
