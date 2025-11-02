@@ -122,7 +122,9 @@ const { deleteWithConfirmation } = useDeleteConfirmation(
     successMessage: 'Výpujčka byla úspěšně smazána.',
     errorMessage: 'Chyba při mazání výpujčky.',
     notes: (loan) =>
-      `Pro knihu "${loan.bookEntity!.title}" vypůjčenou dne: ${new Intl.DateTimeFormat('cs-CZ').format(new Date(loan.loanDate))}`,
+      `Pro knihu "${loan.bookEntity!.title}" vypůjčenou dne: ${new Intl.DateTimeFormat(
+        'cs-CZ'
+      ).format(new Date(loan.loanDate))}`,
   }
 );
 

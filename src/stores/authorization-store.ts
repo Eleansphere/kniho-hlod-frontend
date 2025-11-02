@@ -8,6 +8,7 @@ import { useLoanStore } from './entities/loan-store';
 import { useUserStore } from './entities/user-store';
 import { useTokenManager } from '@/composables/use-token-manager';
 import { useNotification } from '@/composables/use-notification';
+import { useFileStore } from './entities/profile-file-store';
 
 export const authorizationStore = defineStore('authorization', () => {
   const apiUrl = API_ENDPOINTS.userLogin;
@@ -51,6 +52,7 @@ export const authorizationStore = defineStore('authorization', () => {
         useUserStore().fetchEntities(),
         useBookStore().fetchEntities(),
         useLoanStore().fetchEntities(),
+        useFileStore().fetchEntities(),
       ]);
 
       router.push('/home');
@@ -86,6 +88,7 @@ export const authorizationStore = defineStore('authorization', () => {
         useUserStore().fetchEntities(),
         useBookStore().fetchEntities(),
         useLoanStore().fetchEntities(),
+        useFileStore().fetchEntities(),
       ]);
     } else if (token) {
       logOut();

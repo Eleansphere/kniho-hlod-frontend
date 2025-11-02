@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import BooksPage from '../components/tabs/books/Books.vue';
 import LoansPage from '../components/tabs/loans/Loans.vue';
 import OverviewPage from '../components/tabs/overview/Overview.vue';
 import AdministratorPage from '../components/tabs/Administrator.vue';
-import MyAccountPage from '../components/tabs/MyAccount.vue';
+import MyAccountPage from '../components/tabs/account/AccountAccordion.vue';
 import { authorizationStore } from '@/stores/authorization-store';
 import type { MenuTab } from '@/types/mentu-tab';
 import { getActiveLoans } from '@/stores/entities/loan-store';
+import { useFileStore } from '@/stores/entities/profile-file-store';
+import { API_ENDPOINTS } from '@/stores/api-end-points';
 
 const { loggedUser, logOut } = authorizationStore();
 const activeLoans = computed(() => {
@@ -50,7 +52,7 @@ const menuTabs: Array<MenuTab> = [
   {
     label: 'Můj účet',
     content: MyAccountPage,
-    props: { userId: loggedUser!.id },
+    props: {},
     icon: 'pi pi-user',
     value: 4,
     roles: ['admin', 'user'],
@@ -75,6 +77,23 @@ const availableTabs = computed(() => {
       return tab;
     });
 });
+
+const ava = ref();
+onMounted(async () => {
+  const fileStore = useFileStore();
+  const imageId = fileStore.entities.find((image) => image.user === loggedUser!.id)?.id;
+  const response = await fetch(`${API_ENDPOINTS.files}/${imageId}/avatar`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${authorizationStore().getToken()}`,
+    },
+  });
+  console.log(response);
+  //const image = URL.createObjectURL(response.url);
+  ava.value = response.url;
+});
+
+console.log(ava.value);
 </script>
 
 <template>
@@ -97,10 +116,7 @@ const availableTabs = computed(() => {
             </Tab>
           </div>
           <div class="flex items-center justify-self-end gap-4">
-            <Avatar
-              image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png"
-              shape="circle"
-            />
+            <Avatar :image="ava" shape="circle" />
             <span>{{ loggedUser?.username }}</span>
             <Button @click="logOut" icon="pi pi-sign-out" rounded />
           </div>

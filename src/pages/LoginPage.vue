@@ -10,8 +10,8 @@ import { User } from '@/types/entities';
 import { reactive, ref } from 'vue';
 
 const userData = reactive<Partial<User>>({
-  email: '',
-  password: '',
+  email: 'zkouska@zkouska.cz',
+  password: 'zkouska',
 });
 
 const isProcessing = ref(false);
