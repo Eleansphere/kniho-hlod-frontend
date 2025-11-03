@@ -1,38 +1,32 @@
 <script setup lang="ts">
 import { useBookStore, type ExtendedBook } from '@/stores/entities/book-store';
 import { Book } from '@/types/entities';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
 import { bookForm } from '../books/books-form-definition';
-import { useNotification } from '@/composables/use-notification';
-import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
 import { useLoanStore } from '@/stores/entities/loan-store';
 import { getTabsDefinition, TABLE_DEFINITION } from './books-table-definition';
 import { useFormDialog } from '@/composables/use-form-dialog';
-
-const props = defineProps<{
-  userId: string;
-}>();
+import { useConfirmDialog } from '@/composables/use-confirm-dialog';
+import { authorizationStore } from '@/stores/authorization-store';
 
 const store = useBookStore();
 const loanStore = useLoanStore();
+const { loggedUser } = authorizationStore();
 
 const availableBooks = computed<Array<ExtendedBook>>(() => {
   return store.entities.filter(
     (book) =>
-      book.ownerId === props.userId && !loanStore.entities.some((loan) => loan.bookId === book.id)
+      book.ownerId === loggedUser?.id && !loanStore.entities.some((loan) => loan.bookId === book.id)
   );
 });
 
 const borrowedBooks = computed<Array<ExtendedBook>>(() => {
   return store.entities.filter((book) => {
     return (
-      loanStore.entities.some((loan) => loan.bookId === book.id) && book.ownerId === props.userId
+      loanStore.entities.some((loan) => loan.bookId === book.id) && book.ownerId === loggedUser?.id
     );
   });
 });
-
-const isSubmitting = ref(false);
-const { showSaveSuccess, showSaveError } = useNotification();
 
 const { openFormDialog } = useFormDialog();
 
@@ -41,47 +35,23 @@ function openDialog(data: Book): void {
     definition: bookForm,
     modelValue: data ?? { ...new Book() },
     onSave: async (content) => {
-      await handleSubmit(content);
+      await store.saveEntity({ ...content, ownerId: loggedUser!.id });
     },
     mode: data ? 'view' : 'create',
-    submitting: isSubmitting.value,
     header: data ? `Detail knihy: ${data.title} ` : 'Nová kniha',
   });
 }
 
-async function handleSubmit(data: Book): Promise<void> {
-  try {
-    isSubmitting.value = true;
+const { confirmDelete } = useConfirmDialog();
 
-    const bookToSave = { ...data, ownerId: props.userId };
-    console.log('Ukládám knihu:', bookToSave);
-    await store.saveEntity(bookToSave);
-
-    showSaveSuccess('Úspěch', 'Kniha byla úspěšně uložena.');
-  } catch (error) {
-    showSaveError('Chyba', 'Knihu se nepodařilo uložit.');
-    console.error('Chyba při ukládání knihy:', error);
-  } finally {
-    isSubmitting.value = false;
-  }
+function deleteBook(data: Book) {
+  confirmDelete({
+    text: 'Smazat knihu?',
+    handleConfirmCallback: async () => {
+      await store.deleteEntity(data.id);
+    },
+  });
 }
-
-const { deleteWithConfirmation } = useDeleteConfirmation(
-  async (book: Book) => {
-    try {
-      if (!book) return;
-      await store.deleteEntity(book.id);
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  {
-    confirmMessage: 'Smazat knihu?',
-    successMessage: 'Kniha byla úspěšně smazána.',
-    errorMessage: 'Chyba při mazání knihy.',
-    notes: (book) => `Od autora "${book.author}" s názvem: "${book.title}"`,
-  }
-);
 
 onMounted(() => {
   store.fetchEntities();
@@ -114,7 +84,7 @@ onMounted(() => {
             :columns="TABLE_DEFINITION"
             :items="tab.content"
             :handle-detail="openDialog"
-            :handle-delete="deleteWithConfirmation"
+            :handle-delete="deleteBook"
           />
         </TabPanel>
       </TabPanels>

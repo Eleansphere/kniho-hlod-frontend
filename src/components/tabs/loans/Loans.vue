@@ -5,12 +5,10 @@ import { useBookStore } from '@/stores/entities/book-store';
 import { getActiveLoans, useLoanStore, type ExtendedLoan } from '@/stores/entities/loan-store';
 import { Loan } from '@/types/entities';
 import { computed, ref } from 'vue';
-import GenericForm from '@/components/form/GenericForm.vue';
 import type { FormDefinition } from '../../form/types';
-import { useNotification } from '@/composables/use-notification';
-import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
 import { getTabsDefinition, TABLE_DEFINITION } from './loans-table-definitions';
-import { usePreferredDialog } from '@/composables/use-preferred-dialog';
+import { useFormDialog } from '@/composables/use-form-dialog';
+import { useConfirmDialog } from '@/composables/use-confirm-dialog';
 
 const props = defineProps<{
   userId: string;
@@ -27,12 +25,6 @@ const archivedLoans = computed<Array<ExtendedLoan>>(() => {
   return store.entities.filter((loan) => loan.ownerId === loggedUser?.id && loan.isReturned);
 });
 
-const dialog = usePreferredDialog();
-
-const currentLoan = ref<Loan>(new Loan());
-const isSubmitting = ref(false);
-
-const { showSaveSuccess, showSaveError } = useNotification();
 const bookStore = useBookStore();
 
 const availableBooks = computed(() => {
@@ -71,66 +63,34 @@ const editedLoanForm = computed<FormDefinition<Loan>>(() => ({
   ],
 }));
 
+const { openFormDialog } = useFormDialog();
+
 function openDialog(data: Loan): void {
-  dialog.open(
-    GenericForm,
-    {
-      definition: editedLoanForm.value,
-      modelValue: data,
-      mode: data ? 'view' : 'create',
-      submitting: isSubmitting.value,
-      'onUpdate:modelValue': (val) => (currentLoan.value = val),
-      onSubmit: handleSubmit,
+  openFormDialog({
+    definition: editedLoanForm.value,
+    modelValue: data,
+    onSave: async (content) => {
+      await store.saveEntity({ ...content, ownerId: loggedUser!.id });
     },
-    {
-      modal: true,
-      draggable: false,
-      header: data ? `Detail výpujčky: ${data.id}` : 'Nová výpujčka',
-      style: {
-        width: '40%',
-      },
-    }
-  );
+    mode: data ? 'view' : 'create',
+    header: data ? `Detail výpujčky: ${data.id}` : 'Nová výpujčka',
+  });
 }
 
-async function handleSubmit(data: Loan): Promise<void> {
-  const loanToSave = { ...data, ownerId: props.userId };
+const { confirmDelete } = useConfirmDialog();
 
-  try {
-    await store.saveEntity(loanToSave);
-
-    console.log(loanToSave);
-    showSaveSuccess('Úspěch', 'Výpujčka byla úspěšně uložena.');
-    dialog.close();
-  } catch (error) {
-    showSaveError('Chyba', 'Při ukládání výpujčky došlo k chybě.');
-    console.error(error);
-  }
-}
-
-const { deleteWithConfirmation } = useDeleteConfirmation(
-  async (loan: ExtendedLoan) => {
-    try {
-      if (!loan) return;
+function deleteLoan(loan: ExtendedLoan) {
+  confirmDelete({
+    text: 'Smazat výpujčku?',
+    handleConfirmCallback: async () => {
       await store.deleteEntity(loan.id);
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  {
-    confirmMessage: 'Smazat výpujčku?',
-    successMessage: 'Výpujčka byla úspěšně smazána.',
-    errorMessage: 'Chyba při mazání výpujčky.',
-    notes: (loan) =>
-      `Pro knihu "${loan.bookEntity!.title}" vypůjčenou dne: ${new Intl.DateTimeFormat(
-        'cs-CZ'
-      ).format(new Date(loan.loanDate))}`,
-  }
-);
+    },
+  });
+}
 
 function markAsReturned(loan: ExtendedLoan): void {
   if (!loan) return;
-  handleSubmit({ ...loan, isReturned: true });
+  store.saveEntity({ ...loan, isReturned: true });
 }
 </script>
 
@@ -162,7 +122,7 @@ function markAsReturned(loan: ExtendedLoan): void {
           :columns="TABLE_DEFINITION"
           :items="tab.content"
           :handle-detail="openDialog"
-          :handle-delete="deleteWithConfirmation"
+          :handle-delete="deleteLoan"
           :display-detail-only="tab.value === '1'"
         >
           <template #action-column="{ row }">

@@ -11,7 +11,7 @@ import { DEFAULT_DIALOG_CONFIG } from '@/utils/constants/preferred-dialog-config
 
 type CustomEventHandlers = Record<string, (...args: any[]) => void>;
 
-interface ExtendedDialogInstance extends DynamicDialogInstance {
+export interface ExtendedDialogInstance extends DynamicDialogInstance {
   updateProps: (newProps: Partial<ComponentProps<any>>) => void;
 }
 

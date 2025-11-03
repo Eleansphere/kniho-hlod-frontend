@@ -2,6 +2,7 @@ import GenericForm from '@/components/form/GenericForm.vue';
 import { usePreferredDialog } from './use-preferred-dialog';
 import type { FormDefinition } from '@/components/form/types';
 import { ref } from 'vue';
+import { useNotification } from './use-notification';
 
 interface FormDialogConfig<T> {
   definition: FormDefinition<T>;
@@ -14,17 +15,19 @@ interface FormDialogConfig<T> {
 
 export function useFormDialog() {
   const dialog = usePreferredDialog();
+  const { showSaveError, showSaveSuccess } = useNotification();
 
   function openFormDialog<T extends Record<string, any>>(options: FormDialogConfig<T>) {
-    const { definition, modelValue, onSave, mode, submitting, header } = options;
+    const { definition, modelValue, onSave, mode, header } = options;
     const data = ref({ ...modelValue });
+    const isSubmitting = ref(false);
     const dialogRef = dialog.open(
       GenericForm,
       {
         definition,
         modelValue,
         mode,
-        submitting,
+        submitting: isSubmitting.value,
       },
       {
         header,
@@ -38,8 +41,16 @@ export function useFormDialog() {
           };
         },
         submit: async () => {
-          await onSave(data.value);
-          dialogRef.close();
+          isSubmitting.value = true;
+          try {
+            await onSave(data.value);
+            showSaveSuccess();
+          } catch (error) {
+            showSaveError(error as string);
+          } finally {
+            dialogRef.close();
+            isSubmitting.value = false;
+          }
         },
       }
     );

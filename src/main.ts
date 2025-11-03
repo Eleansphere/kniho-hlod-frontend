@@ -12,6 +12,7 @@ import App from '@/App.vue';
 import '@/assets/main.css';
 import router from '@/router';
 import { authorizationStore } from './stores/authorization-store';
+import ConfirmationService from 'primevue/confirmationservice';
 
 const app = createApp(App);
 
@@ -31,6 +32,7 @@ app.use(Primevue, {
 app.use(router);
 app.use(ToastService);
 app.use(DialogService);
+app.use(ConfirmationService);
 
 const store = authorizationStore();
 store.initializeAuth();

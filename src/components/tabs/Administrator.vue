@@ -4,10 +4,8 @@ import type { TableColumnDefinition } from '@/components/table/types';
 import { useUserStore } from '@/stores/entities/user-store';
 import { User } from '@/types/entities';
 import { computed, onMounted, ref } from 'vue';
-import GenericForm from '../form/GenericForm.vue';
-import { useNotification } from '@/composables/use-notification';
-import { useDeleteConfirmation } from '@/composables/use-delete-confirmation';
-import { usePreferredDialog } from '@/composables/use-preferred-dialog';
+import { useFormDialog } from '@/composables/use-form-dialog';
+import { useConfirmDialog } from '@/composables/use-confirm-dialog';
 
 const columns: Array<TableColumnDefinition> = [
   {
@@ -24,69 +22,30 @@ const availableUsers = computed<Array<User>>(() => {
   return store.entities;
 });
 
-const dialog = usePreferredDialog();
-
-const currentUser = ref<User>(new User());
-const isSubmitting = ref(false);
-const { showSaveSuccess, showSaveError } = useNotification();
+const { openFormDialog } = useFormDialog();
 
 function openDialog(data: User): void {
-  dialog.open(
-    GenericForm,
-    {
-      definition: userForm,
-      modelValue: data,
-      mode: data ? 'view' : 'create',
-      submitting: isSubmitting.value,
-      'onUpdate:modelValue': (val) => (currentUser.value = val),
-      onSubmit: handleSubmit,
+  openFormDialog({
+    definition: userForm,
+    modelValue: data,
+    onSave: async (content) => {
+      await store.saveEntity(content);
     },
-    {
-      modal: true,
-      draggable: false,
-      header: data ? `Detail uživatele: ${data.username}` : 'Nový uživatel',
-      style: {
-        width: '40%',
-      },
-    }
-  );
+    mode: data ? 'view' : 'create',
+    header: data ? `Detail uživatele: ${data.username}` : 'Nový uživatel',
+  });
 }
 
-async function handleSubmit(data: User): Promise<void> {
-  Object.assign(currentUser, data);
+const { confirmDelete } = useConfirmDialog();
 
-  try {
-    await store.saveEntity(currentUser.value);
-    showSaveSuccess(
-      'Uživatel úspěšně uložen',
-      `Uživatel ${currentUser.value.username} byl úspěšně uložen.`
-    );
-    dialog.close();
-  } catch (error) {
-    showSaveError(
-      'Chyba při ukládání uživatele',
-      `Uživatel ${currentUser.value.username} se nepodařilo uložit.`
-    );
-    console.error(error);
-  }
+function deleteUser(data: User) {
+  confirmDelete({
+    text: 'Smazat uživatele?',
+    handleConfirmCallback: async () => {
+      await store.deleteEntity(data.id);
+    },
+  });
 }
-
-const { deleteWithConfirmation } = useDeleteConfirmation(
-  async (user: User) => {
-    try {
-      if (!user) return;
-      await store.deleteEntity(user.id);
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  {
-    confirmMessage: 'Smazat uživatele?',
-    successMessage: 'Uživatel byl úspěšně smazán.',
-    errorMessage: 'Chyba při mazání uživatele.',
-    notes: (user) => `"${user.username}" s rolí "${user.role}" a emailem: "${user.email}"`,
-  }
-);
 
 onMounted(() => {
   store.fetchEntities();
@@ -99,6 +58,6 @@ onMounted(() => {
     :columns="columns"
     :items="availableUsers"
     :handle-detail="openDialog"
-    :handle-delete="deleteWithConfirmation"
+    :handle-delete="deleteUser"
   />
 </template>
