@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { registrationForm } from '@/components/form/definitions/registration';
-import GenericForm from '@/components/form/GenericForm.vue';
-import { useNotification } from '@/composables/use-notification';
-import { usePreferredDialog } from '@/composables/use-preferred-dialog';
+import { registrationForm } from '@/features/users/form-definitions/registration';
+import GenericForm from '@/shared/components/form/GenericForm.vue';
+import { useNotification } from '@/shared/composables/use-notification';
+import { usePreferredDialog } from '@/shared/composables/use-preferred-dialog';
 import { authorizationStore } from '@/stores/authorization-store';
-import { useUserStore } from '@/stores/entities/user-store';
+import { useUserStore } from '@/features/users/store';
 import { User } from '@/types/entities';
 import { reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const userData = reactive<Partial<User>>({
-  email: 'zkouska@zkouska.cz',
-  password: 'zkouska',
+  email: '',
+  password: '',
 });
 
 const isProcessing = ref(false);
@@ -25,9 +28,9 @@ async function handleAuthorization(): Promise<void> {
   isProcessing.value = true;
   try {
     await handleLogin(userData);
-    showSaveSuccess('Úspěšné přihlášení', 'Vítejte zpět!');
+    showSaveSuccess(t('login.loginSuccess'), t('login.loginSuccessDetail'));
   } catch (error) {
-    showSaveError('Chyba při přihlášení', 'Zkontrolujte své přihlašovací údaje.');
+    showSaveError(t('login.loginError'), t('login.loginErrorDetail'));
     console.error(error);
   } finally {
     isProcessing.value = false;
@@ -50,7 +53,7 @@ function openRegistrationDialog(data: User): void {
     },
     {
       modal: true,
-      header: 'Registrace nového uživatele',
+      header: t('login.registrationTitle'),
       dialogSize: 'form',
     }
   );
@@ -64,14 +67,14 @@ async function handleRegistration(data: User): Promise<void> {
   try {
     await store.saveEntity(formData.value);
     showSaveSuccess(
-      'Registrace úspěšná',
-      `Uživatel ${formData.value.username} byl úspěšně zaregistrován.`
+      t('login.registrationSuccess'),
+      t('login.registrationSuccessDetail', { username: formData.value.username })
     );
     registrationDialogRef?.close();
   } catch (error) {
     showSaveError(
-      'Chyba při registraci',
-      `Uživatel ${formData.value.username} se nepodařilo zaregistrovat.`
+      t('login.registrationError'),
+      t('login.registrationErrorDetail', { username: formData.value.username })
     );
   } finally {
     isSubmitting.value = false;
@@ -90,37 +93,41 @@ async function handleRegistration(data: User): Promise<void> {
               <i class="pi pi-book text-primary-300 text-3xl"></i>
             </div>
           </div>
-          <h1 class="text-surface-0 text-3xl font-bold tracking-wide mb-1">Kniho-hlod</h1>
-          <p class="text-surface-400 text-sm">Přehled tvých zapůjčených knih</p>
+          <h1 class="text-surface-0 text-3xl font-bold tracking-wide mb-1">{{ t('login.title') }}</h1>
+          <p class="text-surface-400 text-sm">{{ t('login.subtitle') }}</p>
         </div>
 
         <!-- Form -->
         <div class="px-8 py-8">
           <div class="mb-5">
-            <label for="email" class="block text-surface-700 font-medium mb-2 text-sm">Email</label>
+            <label for="email" class="block text-surface-700 font-medium mb-2 text-sm">
+              {{ t('login.email') }}
+            </label>
             <InputText
               id="email"
               v-model="userData.email"
               type="text"
-              placeholder="vas@email.cz"
+              :placeholder="t('login.emailPlaceholder')"
               class="w-full"
             />
           </div>
 
           <div class="mb-6">
-            <label for="password" class="block text-surface-700 font-medium mb-2 text-sm">Heslo</label>
+            <label for="password" class="block text-surface-700 font-medium mb-2 text-sm">
+              {{ t('login.password') }}
+            </label>
             <InputText
               id="password"
               v-model="userData.password"
               type="password"
-              placeholder="••••••••"
+              :placeholder="t('login.passwordPlaceholder')"
               class="w-full"
               @keyup.enter="handleAuthorization"
             />
           </div>
 
           <Button
-            label="Přihlásit se"
+            :label="t('login.submit')"
             @click="handleAuthorization"
             icon="pi pi-sign-in"
             fluid
@@ -129,12 +136,12 @@ async function handleRegistration(data: User): Promise<void> {
           />
 
           <div class="text-center mt-5 text-sm">
-            <span class="text-surface-500">Nemáte účet?</span>
+            <span class="text-surface-500">{{ t('login.noAccount') }}</span>
             <a
               class="ml-2 text-primary-500 font-semibold cursor-pointer hover:text-primary-600 hover:underline"
               @click="() => openRegistrationDialog(new User())"
             >
-              Vytvořte si účet!
+              {{ t('login.register') }}
             </a>
           </div>
         </div>

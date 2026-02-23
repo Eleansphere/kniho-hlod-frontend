@@ -8,7 +8,7 @@ import Primevue from 'primevue/config';
 import DialogService from 'primevue/dialogservice';
 import ToastService from 'primevue/toastservice';
 import { createApp } from 'vue';
-import { useDarkMode } from '@/composables/use-dark-mode';
+import { useDarkMode } from '@/shared/composables/use-dark-mode';
 
 import App from '@/App.vue';
 import '@/assets/main.css';

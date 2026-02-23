@@ -1,3 +1,5 @@
+import type { UserRole } from '@/features/users/constants';
+
 export class CoreEntity {
   public id!: string;
   public readonly createdAt!: Date;
@@ -9,7 +11,7 @@ export interface UserAttributes {
   username: string;
   password: string;
   email: string;
-  role: string;
+  role: UserRole;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -19,7 +21,7 @@ export class User implements UserAttributes {
   public username!: string;
   public password!: string;
   public email!: string;
-  public role!: string;
+  public role!: UserRole;
   public createdAt!: string;
   public updatedAt!: string;
 }

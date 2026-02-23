@@ -3,12 +3,12 @@ import type { User } from '@/types/entities';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { API_ENDPOINTS } from './api-end-points';
-import { useBookStore } from './entities/book-store';
-import { useLoanStore } from './entities/loan-store';
-import { useUserStore } from './entities/user-store';
-import { useTokenManager } from '@/composables/use-token-manager';
-import { useNotification } from '@/composables/use-notification';
-import { useFileStore } from './entities/profile-file-store';
+import { useBookStore } from '@/features/books/store';
+import { useLoanStore } from '@/features/loans/store';
+import { useUserStore } from '@/features/users/store';
+import { useTokenManager } from '@/shared/composables/use-token-manager';
+import { useNotification } from '@/shared/composables/use-notification';
+import { useFileStore } from '@/features/account/store';
 
 export const authorizationStore = defineStore('authorization', () => {
   const apiUrl = API_ENDPOINTS.userLogin;

@@ -16,27 +16,27 @@ export const routes = [
           {
             path: 'overview',
             name: 'overview',
-            component: () => import('@/components/tabs/overview/Overview.vue'),
+            component: () => import('@/features/overview/components/OverviewTab.vue'),
           },
           {
             path: 'loans',
             name: 'loans',
-            component: () => import('@/components/tabs/loans/Loans.vue'),
+            component: () => import('@/features/loans/components/LoansTab.vue'),
           },
           {
             path: 'books',
             name: 'books',
-            component: () => import('@/components/tabs/books/Books.vue'),
+            component: () => import('@/features/books/components/BooksTab.vue'),
           },
           {
             path: 'account',
             name: 'account',
-            component: () => import('@/components/tabs/account/AccountAccordion.vue'),
+            component: () => import('@/features/account/components/AccountAccordion.vue'),
           },
           {
             path: 'admin',
             name: 'admin',
-            component: () => import('@/components/tabs/Administrator.vue'),
+            component: () => import('@/features/users/components/AdministratorTab.vue'),
             meta: { requiresRole: 'admin' },
           },
           {

@@ -3,11 +3,11 @@ import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { authorizationStore } from '@/stores/authorization-store';
-import { getActiveLoans } from '@/stores/entities/loan-store';
-import { useFileStore } from '@/stores/entities/profile-file-store';
+import { getActiveLoans } from '@/features/loans/store';
+import { useFileStore } from '@/features/account/store';
 import { API_ENDPOINTS } from '@/stores/api-end-points';
 import { setLocale } from '@/i18n';
-import { useDarkMode } from '@/composables/use-dark-mode';
+import { useDarkMode } from '@/shared/composables/use-dark-mode';
 import { onMounted } from 'vue';
 
 const router = useRouter();
