@@ -1,0 +1,253 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { authorizationStore } from '@/stores/authorization-store';
+import { getActiveLoans } from '@/stores/entities/loan-store';
+import { useFileStore } from '@/stores/entities/profile-file-store';
+import { API_ENDPOINTS } from '@/stores/api-end-points';
+import { setLocale } from '@/i18n';
+import { useDarkMode } from '@/composables/use-dark-mode';
+import { onMounted } from 'vue';
+
+const router = useRouter();
+const route = useRoute();
+const { t, locale } = useI18n();
+const { loggedUser, logOut } = authorizationStore();
+const { isDark, toggle } = useDarkMode();
+
+interface NavItem {
+  label: () => string;
+  icon: string;
+  route: string;
+  role?: string;
+  badge?: () => number;
+}
+
+const allNavItems: NavItem[] = [
+  { label: () => t('nav.overview'), icon: 'pi pi-home', route: '/home/overview' },
+  {
+    label: () => t('nav.loans'),
+    icon: 'pi pi-address-book',
+    route: '/home/loans',
+    badge: () => getActiveLoans(loggedUser!.id).length,
+  },
+  { label: () => t('nav.books'), icon: 'pi pi-book', route: '/home/books' },
+  { label: () => t('nav.notifications'), icon: 'pi pi-bell', route: '/home/notifications' },
+  { label: () => t('nav.account'), icon: 'pi pi-user', route: '/home/account' },
+  { label: () => t('nav.admin'), icon: 'pi pi-cog', route: '/home/admin', role: 'admin' },
+];
+
+const navItems = computed(() =>
+  allNavItems.filter((item) => !item.role || item.role === loggedUser?.role)
+);
+
+function isActive(itemRoute: string): boolean {
+  return route.path === itemRoute || route.path.startsWith(itemRoute + '/');
+}
+
+// Drawer (mobile)
+const drawerVisible = ref(false);
+
+function navigate(itemRoute: string) {
+  router.push(itemRoute);
+  drawerVisible.value = false;
+}
+
+// Avatar
+const avatarUrl = ref<string | undefined>(undefined);
+
+onMounted(async () => {
+  const fileStore = useFileStore();
+  const imageId = fileStore.entities.find((img) => img.user === loggedUser!.id)?.id;
+  if (imageId) {
+    try {
+      const res = await fetch(`${API_ENDPOINTS.files}/${imageId}/avatar`, {
+        headers: { Authorization: `Bearer ${authorizationStore().getToken()}` },
+      });
+      avatarUrl.value = res.url;
+    } catch {
+      // non-critical
+    }
+  }
+});
+</script>
+
+<template>
+  <div class="min-h-screen flex">
+    <!-- Desktop fixed sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 shrink-0 fixed inset-y-0 left-0 bg-surface-800 z-10">
+      <!-- Logo -->
+      <div class="flex items-center gap-3 px-5 py-5 border-b border-surface-700">
+        <i class="pi pi-book text-primary-400 text-2xl"></i>
+        <span class="text-surface-0 font-bold text-xl tracking-wide">Kniho-hlod</span>
+      </div>
+
+      <!-- Nav items -->
+      <nav class="flex-1 overflow-y-auto py-3 px-2">
+        <button
+          v-for="item in navItems"
+          :key="item.route"
+          @click="navigate(item.route)"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-0.5 text-left transition-colors relative"
+          :class="
+            isActive(item.route)
+              ? 'bg-primary-500/20 text-primary-300 font-semibold'
+              : 'text-surface-400 hover:bg-surface-700 hover:text-surface-0'
+          "
+        >
+          <i :class="item.icon" class="text-base w-5 text-center shrink-0"></i>
+          <span class="text-sm">{{ item.label() }}</span>
+          <span
+            v-if="item.badge && item.badge() > 0"
+            class="ml-auto bg-red-500 text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center px-1"
+          >
+            {{ item.badge() }}
+          </span>
+        </button>
+      </nav>
+
+      <!-- User section -->
+      <div class="border-t border-surface-700 p-3">
+        <div class="flex items-center gap-2 px-2 py-2 mb-1">
+          <Avatar
+            :image="avatarUrl"
+            icon="pi pi-user"
+            shape="circle"
+            size="small"
+            class="shrink-0"
+          />
+          <span class="text-surface-200 text-sm font-medium truncate">
+            {{ loggedUser?.username }}
+          </span>
+        </div>
+
+        <!-- Language + Dark mode row -->
+        <div class="flex items-center gap-1 px-2 pb-1">
+          <Button
+            label="CS"
+            :text="locale !== 'cs'"
+            size="small"
+            @click="setLocale('cs')"
+          />
+          <Button
+            label="EN"
+            :text="locale !== 'en'"
+            size="small"
+            @click="setLocale('en')"
+          />
+          <Button
+            :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+            text
+            size="small"
+            @click="toggle"
+            class="ml-auto"
+            :aria-label="t('topbar.toggleDark')"
+          />
+        </div>
+
+        <button
+          @click="logOut"
+          class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-surface-400 hover:bg-surface-700 hover:text-surface-0 transition-colors text-sm"
+        >
+          <i class="pi pi-sign-out w-5 text-center"></i>
+          <span>{{ t('nav.logout') }}</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main area -->
+    <div class="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      <!-- Mobile top bar -->
+      <header
+        class="lg:hidden sticky top-0 z-20 bg-surface-800 flex items-center justify-between px-4 h-14 border-b border-surface-700"
+      >
+        <div class="flex items-center gap-3">
+          <Button
+            icon="pi pi-bars"
+            text
+            severity="secondary"
+            @click="drawerVisible = true"
+            class="!text-surface-200"
+            aria-label="Open menu"
+          />
+          <div class="flex items-center gap-2">
+            <i class="pi pi-book text-primary-400"></i>
+            <span class="text-surface-0 font-bold">Kniho-hlod</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <Button label="CS" :text="locale !== 'cs'" size="small" @click="setLocale('cs')" />
+          <Button label="EN" :text="locale !== 'en'" size="small" @click="setLocale('en')" />
+          <Button
+            :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+            text
+            size="small"
+            @click="toggle"
+            :aria-label="t('topbar.toggleDark')"
+          />
+          <Avatar :image="avatarUrl" icon="pi pi-user" shape="circle" size="small" />
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="flex-1 p-4 lg:p-6 bg-surface-50 overflow-y-auto">
+        <router-view />
+      </main>
+    </div>
+
+    <!-- PrimeVue Drawer (mobile) -->
+    <Drawer v-model:visible="drawerVisible" :modal="true" position="left" class="!w-72">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <i class="pi pi-book text-primary-500"></i>
+          <span class="font-bold text-lg">Kniho-hlod</span>
+        </div>
+      </template>
+
+      <!-- User info -->
+      <div class="flex items-center gap-3 py-3 mb-2 border-b border-surface-200">
+        <Avatar :image="avatarUrl" icon="pi pi-user" shape="circle" class="shrink-0" />
+        <div>
+          <p class="font-medium text-surface-700 text-sm">{{ loggedUser?.username }}</p>
+          <p class="text-surface-400 text-xs">{{ loggedUser?.email }}</p>
+        </div>
+      </div>
+
+      <!-- Nav items -->
+      <nav class="flex flex-col gap-0.5">
+        <button
+          v-for="item in navItems"
+          :key="item.route"
+          @click="navigate(item.route)"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors"
+          :class="
+            isActive(item.route)
+              ? 'bg-primary-50 text-primary-700 font-semibold'
+              : 'text-surface-600 hover:bg-surface-100'
+          "
+        >
+          <i :class="item.icon" class="text-base w-5 text-center shrink-0"></i>
+          <span class="text-sm">{{ item.label() }}</span>
+          <span
+            v-if="item.badge && item.badge() > 0"
+            class="ml-auto bg-red-500 text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center px-1"
+          >
+            {{ item.badge() }}
+          </span>
+        </button>
+      </nav>
+
+      <template #footer>
+        <Button
+          :label="t('nav.logout')"
+          icon="pi pi-sign-out"
+          severity="secondary"
+          text
+          fluid
+          @click="logOut"
+        />
+      </template>
+    </Drawer>
+  </div>
+</template>

@@ -34,7 +34,7 @@ const emit = defineEmits<{
 <template>
   <Card class="opacity-95 w-[400px]">
     <template #title>
-      <h2 class="mb-6 text-2xl font-semibold text-blue-900">{{ loadingText[index] }}</h2>
+      <h2 class="mb-6 text-2xl font-semibold text-surface-800">{{ loadingText[index] }}</h2>
     </template>
     <template #content>
       <ProgressBar :value="progress" mode="indeterminate" class="w-full" style="height: 1rem" />

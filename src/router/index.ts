@@ -17,13 +17,19 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.requiresAuth) {
     if (!token || isTokenExpired()) {
-      console.log('🚫 Není přihlášený nebo expirovaný token');
       return next('/login');
     }
   }
 
+  if (to.meta.requiresRole) {
+    const { loggedUser } = authorizationStore();
+    if (loggedUser?.role !== to.meta.requiresRole) {
+      return next('/home/overview');
+    }
+  }
+
   if (to.path === '/login' && token && !isTokenExpired()) {
-    return next('/home');
+    return next('/home/overview');
   }
 
   next();

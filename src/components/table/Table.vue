@@ -9,11 +9,12 @@ defineProps<{
   displayDetailOnly?: boolean;
   handleDetail?: (data?: Entity) => void;
   handleDelete?: (data?: Entity) => void;
+  rowClass?: (data: Entity) => string | undefined;
 }>();
 </script>
 
 <template>
-  <DataTable :value="items" size="small">
+  <DataTable :value="items" size="small" :row-class="rowClass">
     <template #empty>{{ 'neni zaznamu' }}</template>
     <Column v-if="handleDetail" class="w-0">
       <template v-if="!displayDetailOnly" #header>

@@ -1,96 +1,103 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
-import { overviewStats, lastBorrowedBook, earliestLoanReturn } from './overview-stats-definition';
+import { useI18n } from 'vue-i18n';
+import StatCard from '@/components/overview/StatCard.vue';
+import OverdueCard from '@/components/overview/OverdueCard.vue';
+import InfoCard from '@/components/overview/InfoCard.vue';
+import {
+  overdueLoans,
+  lastBorrowedBook,
+  earliestLoanReturn,
+} from './overview-stats-definition';
 import { authorizationStore } from '@/stores/authorization-store';
-import { getActiveLoans } from '@/stores/entities/loan-store';
+import { getActiveLoans, getAllLoans } from '@/stores/entities/loan-store';
+import { getAllBooks } from '@/stores/entities/book-store';
+import { getOverdueLoans } from '@/stores/entities/loan-store';
 
+const { t } = useI18n();
 const { loggedUser } = authorizationStore();
-const haveLoans = computed(() => {
-  return Boolean(getActiveLoans(loggedUser.id).length);
-});
+const haveLoans = computed(() => Boolean(getActiveLoans(loggedUser!.id).length));
+
+const overviewStats = computed(() => [
+  {
+    label: t('overview.statBooks'),
+    color: 'var(--p-primary-500)',
+    value: getAllBooks(loggedUser!.id).length,
+    icon: 'pi pi-book',
+  },
+  {
+    label: t('overview.statActiveLoans'),
+    color: 'var(--p-primary-400)',
+    value: getActiveLoans(loggedUser!.id).length,
+    icon: 'pi pi-address-book',
+  },
+  {
+    label: t('overview.statOverdue'),
+    color: 'var(--p-red-500)',
+    value: getOverdueLoans(loggedUser!.id).length,
+    icon: 'pi pi-exclamation-triangle',
+  },
+]);
 </script>
 
 <template>
-  <div v-if="haveLoans" class="p-4 grid gap-4">
-    <h2 class="text-xl font-bold mb-1">🪱Vítej červe {{ loggedUser.username }}</h2>
-    <p class="text-gray-600 mb-6">Rád tě tu zase vidíme 👋</p>
-
-    <div class="mb-8">
-      <div class="flex items-center gap-2 mb-4">
-        <i class="pi pi-info-circle text-red-600"></i>
-        <span class="text-red-600 font-semibold text-lg">Rychlý přehled</span>
-      </div>
-      <Divider />
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-4">
-          <div class="flex items-center gap-2 text-green-700 font-semibold mb-2">
-            Poslední zapůjčená kniha
-          </div>
-          <p>
-            <span class="font-bold">Titul:</span>
-            {{ lastBorrowedBook.bookEntity.title }}
-          </p>
-          <p>
-            <span class="font-bold">Komu:</span>
-            {{ lastBorrowedBook.borrower }}
-          </p>
-          <p>
-            <span class="font-bold">Dne:</span>
-            {{ new Date(lastBorrowedBook.loanDate).toLocaleDateString('cs-CZ') }}
-          </p>
-        </div>
-
-        <div class="bg-white p-4">
-          <div class="flex items-center gap-2 text-red-700 font-semibold mb-2">
-            Nejbližší termín vrácení
-          </div>
-          <p>
-            <span class="font-bold">Titul:</span>
-            {{ earliestLoanReturn.bookEntity.title }}
-          </p>
-          <p>
-            <span class="font-bold">Komu:</span>
-            {{ earliestLoanReturn?.borrower }}
-          </p>
-          <p>
-            <span class="font-bold">Do:</span>
-            {{ new Date(earliestLoanReturn.returnDate).toLocaleDateString('cs-CZ') }}
-          </p>
-        </div>
-      </div>
-    </div>
-
+  <div class="grid gap-6">
     <div>
-      <div class="flex items-center gap-2 mb-4">
-        <i class="pi pi-chart-bar text-sky-600"></i>
-        <span class="text-sky-600 font-semibold text-lg">Statistiky</span>
-      </div>
-      <Divider />
-      <div class="flex flex-wrap gap-4">
-        <template v-for="(val, i) in overviewStats" :key="i">
-          <Card class="flex-1 border border-surface shadow-none">
-            <template #content>
-              <div class="flex justify-between gap-8">
-                <div class="flex items-center gap-2">
-                  <span class="text-surface-500 dark:text-surface-400 text-sm">
-                    {{ val.label }}:
-                  </span>
-                  <span class="font-bold text-lg">{{ val.value }}</span>
-                </div>
-                <span
-                  class="w-8 h-8 rounded-full inline-flex justify-center items-center text-center"
-                  :style="{ backgroundColor: val.color, color: '#ffffff' }"
-                >
-                  <i :class="val.icon" />
-                </span>
-              </div>
-            </template>
-          </Card>
-        </template>
-      </div>
+      <h2 class="text-2xl font-bold text-surface-800 mb-1">
+        {{ t('overview.welcome', { name: loggedUser?.username }) }}
+      </h2>
+      <p class="text-surface-500 text-sm">{{ t('overview.subtitle') }}</p>
     </div>
-  </div>
-  <div v-else>
-    <p>Ještě jsi nikomu nic nepujčil jsi šťástné člověk</p>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <StatCard
+        v-for="stat in overviewStats"
+        :key="stat.label"
+        :label="stat.label"
+        :value="stat.value"
+        :color="stat.color"
+        :icon="stat.icon"
+      />
+    </div>
+
+    <!-- Overdue alert -->
+    <Message v-if="overdueLoans.length > 0" severity="error" :closable="false">
+      <template #messageicon>
+        <i class="pi pi-exclamation-triangle" />
+      </template>
+      <div>
+        <p class="font-semibold mb-2">{{ t('overview.overdueTitle') }}</p>
+        <OverdueCard v-for="loan in overdueLoans" :key="loan.id" :loan="loan" />
+      </div>
+    </Message>
+
+    <!-- Info cards -->
+    <div v-if="haveLoans" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <InfoCard
+        v-if="lastBorrowedBook"
+        :title-key="t('overview.lastBorrowed')"
+        icon="pi pi-book"
+        :book-title="lastBorrowedBook.bookEntity?.title ?? ''"
+        :borrower="t('overview.lentTo', { name: lastBorrowedBook.borrower })"
+        :date="new Date(lastBorrowedBook.loanDate).toLocaleDateString()"
+        :date-label="t('loans.loanDate')"
+      />
+
+      <InfoCard
+        v-if="earliestLoanReturn"
+        :title-key="t('overview.earliestReturn')"
+        icon="pi pi-calendar-clock"
+        :book-title="earliestLoanReturn.bookEntity?.title ?? ''"
+        :borrower="t('overview.lentTo', { name: earliestLoanReturn.borrower })"
+        :date="new Date(earliestLoanReturn.returnDate!).toLocaleDateString()"
+        :date-label="t('loans.returnDate')"
+      />
+    </div>
+
+    <div v-if="!haveLoans" class="bg-surface-0 rounded-xl p-6 text-center text-surface-400">
+      <i class="pi pi-book text-4xl mb-3 block text-surface-200"></i>
+      <p class="font-medium">{{ t('overview.empty') }}</p>
+    </div>
   </div>
 </template>

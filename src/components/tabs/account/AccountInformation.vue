@@ -1,127 +1,155 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { API_ENDPOINTS } from '@/stores/api-end-points';
 import { authorizationStore } from '@/stores/authorization-store';
+import { useUserStore } from '@/stores/entities/user-store';
 import { useFileStore } from '@/stores/entities/profile-file-store';
+import { useNotification } from '@/composables/use-notification';
 import { computed, onMounted, ref } from 'vue';
 import { formatDate } from '@/utils/date';
 
+const { t } = useI18n();
 const { loggedUser } = authorizationStore();
-
+const userStore = useUserStore();
 const fileStore = useFileStore();
-const isSubmitting = ref(false);
+const { showSaveSuccess, showSaveError } = useNotification();
 
+// Avatar
 const selectedFile = ref<File | null>(null);
 const previewUrl = ref<string | null>(null);
+const currentAvatarUrl = ref<string | undefined>(undefined);
 const isUploading = ref(false);
 
-// 📂 při výběru souboru
+const hasAvatar = computed(
+  () => !!(previewUrl.value || currentAvatarUrl.value)
+);
+
 function onFileSelect(event: Event) {
   const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
+  if (input.files && input.files[0]) {
     selectedFile.value = input.files[0];
     previewUrl.value = URL.createObjectURL(selectedFile.value);
   }
 }
-const haveAvatar = computed(() => {
-  const userProfileImage = Boolean(
-    fileStore.entities.find((image) => image.user === loggedUser?.id)
-  );
-  return !previewUrl && !userProfileImage;
-});
-async function upload() {
+
+async function uploadAvatar() {
   if (!selectedFile.value) return;
-
-  isSubmitting.value = true;
-
+  isUploading.value = true;
   try {
-    // 1️⃣ Ulož metadata o souboru
-    const meta = {
-      name: selectedFile.value.name,
-      user: loggedUser?.id,
-    };
+    const meta = { name: selectedFile.value.name, user: loggedUser?.id };
+    const savedMeta = await fileStore.saveEntity(meta as Parameters<typeof fileStore.saveEntity>[0]);
 
-    const savedMeta = await fileStore.saveEntity(meta);
-
-    // 2️⃣ Nahraj samotný soubor (jako blob)
     const formData = new FormData();
     formData.append('avatar', selectedFile.value);
-    formData.append('id', savedMeta.id); // spojíš s metadaty
+    formData.append('id', savedMeta.id);
 
     const response = await fetch(`${API_ENDPOINTS.files}/${savedMeta.id}/avatar`, {
       method: 'POST',
       body: formData,
-      headers: {
-        Authorization: `Bearer ${authorizationStore().getToken()}`,
-      },
+      headers: { Authorization: `Bearer ${authorizationStore().getToken()}` },
     });
 
-    if (!response.ok) {
-      throw new Error('Nepodařilo se nahrát soubor');
-    }
-
-    const data = await response.json();
-    console.log('Soubor úspěšně nahrán:', data);
-  } catch (err) {
-    console.error(err);
+    if (!response.ok) throw new Error('Upload failed');
+    showSaveSuccess(t('common.save'), t('account.avatar'));
+    selectedFile.value = null;
+  } catch {
+    showSaveError(t('common.save'), t('account.avatar'));
   } finally {
-    isSubmitting.value = false;
+    isUploading.value = false;
   }
 }
-const ava = ref();
+
+// Profile info editing
+const editUsername = ref(loggedUser?.username ?? '');
+const editEmail = ref(loggedUser?.email ?? '');
+const isSaving = ref(false);
+
+async function saveProfile() {
+  if (!loggedUser?.id) return;
+  isSaving.value = true;
+  try {
+    await userStore.saveEntity({ ...loggedUser, username: editUsername.value, email: editEmail.value });
+    showSaveSuccess(t('common.save'), t('account.tabInfo'));
+  } catch {
+    showSaveError(t('common.save'), t('account.tabInfo'));
+  } finally {
+    isSaving.value = false;
+  }
+}
+
 onMounted(async () => {
-  const fileStore = useFileStore();
-  const imageId = fileStore.entities.find((image) => image.user === loggedUser!.id)?.id;
-  const response = await fetch(`${API_ENDPOINTS.files}/${imageId}/avatar`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${authorizationStore().getToken()}`,
-    },
-  });
-  console.log(response);
-  //const image = URL.createObjectURL(response.url);
-  ava.value = response.url;
+  const imageId = fileStore.entities.find((img) => img.user === loggedUser!.id)?.id;
+  if (imageId) {
+    try {
+      const res = await fetch(`${API_ENDPOINTS.files}/${imageId}/avatar`, {
+        headers: { Authorization: `Bearer ${authorizationStore().getToken()}` },
+      });
+      currentAvatarUrl.value = res.url;
+    } catch {
+      // non-critical
+    }
+  }
 });
 </script>
 
 <template>
-  <div class="flex align-items-center gap-3 mb-4">
-    <div class="flex items-center gap-4">
+  <div class="grid gap-6">
+    <!-- Avatar section -->
+    <div class="flex items-center gap-5 p-4 bg-surface-50 rounded-xl">
       <Avatar
         size="xlarge"
         shape="circle"
-        :image="previewUrl || ava"
-        :icon="haveAvatar ? 'pi pi-user' : ''"
+        :image="previewUrl || currentAvatarUrl"
+        :icon="hasAvatar ? undefined : 'pi pi-user'"
+        class="shrink-0 !w-20 !h-20"
       />
-      {{ selectedFile?.name }}
+      <div class="flex flex-col gap-2">
+        <p class="text-surface-700 font-medium text-sm">{{ t('account.avatar') }}</p>
+        <div class="flex items-center gap-2 flex-wrap">
+          <input type="file" accept="image/*" @change="onFileSelect" class="hidden" id="avatarInput" />
+          <label
+            for="avatarInput"
+            class="px-3 py-1.5 text-sm border border-surface-200 rounded-lg cursor-pointer text-surface-600 hover:bg-surface-0 transition-colors"
+          >
+            <i class="pi pi-image mr-1.5"></i>
+            {{ t('account.selectPhoto') }}
+          </label>
+          <Button
+            v-if="selectedFile"
+            :label="t('common.upload')"
+            icon="pi pi-upload"
+            size="small"
+            :loading="isUploading"
+            @click="uploadAvatar"
+          />
+        </div>
+        <p v-if="selectedFile" class="text-surface-400 text-xs">{{ selectedFile.name }}</p>
+      </div>
     </div>
 
-    <div class="flex flex-column items-center justify-end w-full gap-2">
-      <input type="file" accept="image/*" @change="onFileSelect" class="hidden" id="avatarInput" />
-      <label for="avatarInput" class="cursor-pointer text-primary underline">Vybrat fotku</label>
+    <!-- Editable fields -->
+    <div class="grid gap-4">
+      <div>
+        <label class="block text-surface-700 font-medium mb-1.5 text-sm">{{ t('account.username') }}</label>
+        <InputText v-model="editUsername" fluid />
+      </div>
+      <div>
+        <label class="block text-surface-700 font-medium mb-1.5 text-sm">{{ t('account.email') }}</label>
+        <InputText v-model="editEmail" type="email" fluid />
+      </div>
+      <div>
+        <label class="block text-surface-700 font-medium mb-1.5 text-sm">{{ t('account.registeredAt') }}</label>
+        <InputText :value="formatDate(loggedUser?.createdAt) || '—'" disabled fluid />
+      </div>
+    </div>
 
+    <div class="flex justify-end">
       <Button
-        label="Nahrát"
-        icon="pi pi-upload"
-        :loading="isUploading"
-        severity="secondary"
-        @click="upload"
+        :label="t('common.saveChanges')"
+        icon="pi pi-check"
+        :loading="isSaving"
+        @click="saveProfile"
       />
-    </div>
-  </div>
-
-  <div class="grid gap-3">
-    <div class="col-12 md:col-6">
-      <label class="block font-medium mb-2">Jméno</label>
-      <InputText :value="loggedUser?.username || '—'" disabled fluid />
-    </div>
-    <div class="col-12 md:col-6">
-      <label class="block font-medium mb-2">E-mail</label>
-      <InputText :value="loggedUser?.email || '—'" disabled fluid />
-    </div>
-
-    <div class="col-12 md:col-6">
-      <label class="block font-medium mb-2">Datum registrace</label>
-      <InputText :value="formatDate(loggedUser?.createdAt) || '—'" disabled fluid />
     </div>
   </div>
 </template>

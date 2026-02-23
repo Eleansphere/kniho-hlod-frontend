@@ -29,7 +29,7 @@ export function usePreferredDialog() {
       const { dialogSize, style, ...restDialog } = dialog;
       const presetStyle = dialogSize ? DIALOG_SIZE_PRESETS[dialogSize] : {};
 
-      const reactiveProps = reactive(props);
+      const reactiveProps = reactive({ ...props });
 
       const dialogRef = d.open(DialogHelper, {
         onClose,

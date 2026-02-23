@@ -52,3 +52,20 @@ export function getEarliestLoanReturn(): ExtendedLoan {
   const activeLoans = getActiveLoans(loggedUser!.id);
   return sortBy(activeLoans, 'returnDate')[0];
 }
+
+export function getOverdueLoans(userId: string): ExtendedLoan[] {
+  const store = useLoanStore();
+  const today = new Date();
+  return store.entities.filter(
+    (loan) =>
+      loan.ownerId === userId &&
+      !loan.isReturned &&
+      loan.returnDate != null &&
+      new Date(loan.returnDate) < today,
+  );
+}
+
+export function getLoansForBook(bookId: string): ExtendedLoan[] {
+  const store = useLoanStore();
+  return store.entities.filter((loan) => loan.bookId === bookId);
+}

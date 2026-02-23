@@ -6,10 +6,8 @@ const isLoading = ref(true);
 </script>
 
 <template>
-  <div class="h-screen bg-hlod bg-no-repeat bg-cover flex justify-center">
-    <main class="flex justify-center" :class="isLoading ? 'items-end mb-10' : 'items-center'">
-      <loading-page v-if="isLoading" @all-loaded="isLoading = false" />
-      <router-view v-else />
-    </main>
+  <div v-if="isLoading" class="min-h-screen bg-hlod bg-no-repeat bg-cover flex justify-center items-end pb-10">
+    <loading-page @all-loaded="isLoading = false" />
   </div>
+  <router-view v-else />
 </template>

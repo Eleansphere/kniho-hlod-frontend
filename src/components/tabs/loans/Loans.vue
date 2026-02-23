@@ -6,47 +6,29 @@ import { getActiveLoans, useLoanStore, type ExtendedLoan } from '@/stores/entiti
 import { Loan } from '@/types/entities';
 import { computed, ref } from 'vue';
 import type { FormDefinition } from '../../form/types';
-import { getTabsDefinition, TABLE_DEFINITION } from './loans-table-definitions';
 import { useFormDialog } from '@/composables/use-form-dialog';
 import { useConfirmDialog } from '@/composables/use-confirm-dialog';
-
-const props = defineProps<{
-  userId: string;
-}>();
+import LoanCard from '@/components/loans/LoanCard.vue';
 
 const store = useLoanStore();
 const { loggedUser } = authorizationStore();
 
-const activeLoans = computed<Array<ExtendedLoan>>(() => {
-  return getActiveLoans(loggedUser!.id);
-});
+const activeLoans = computed<Array<ExtendedLoan>>(() => getActiveLoans(loggedUser!.id));
 
-const archivedLoans = computed<Array<ExtendedLoan>>(() => {
-  return store.entities.filter((loan) => loan.ownerId === loggedUser?.id && loan.isReturned);
-});
+const archivedLoans = computed<Array<ExtendedLoan>>(() =>
+  store.entities.filter((loan) => loan.ownerId === loggedUser?.id && loan.isReturned)
+);
 
 const bookStore = useBookStore();
 
-const availableBooks = computed(() => {
-  return bookStore.entities
+const availableBooks = computed(() =>
+  bookStore.entities
     .filter(
       (book) =>
-        book.ownerId === props.userId && !store.entities.some((loan) => loan.bookId === book.id)
+        book.ownerId === loggedUser?.id && !store.entities.some((loan) => loan.bookId === book.id)
     )
-    .map((book) => ({
-      label: book.title,
-      value: book.id,
-    }));
-});
-
-// const availableBooks = computed(() => {
-//   return bookStore.entities
-//     .filter((book) => book.ownerId === loggedUser?.id)
-//     .map((book) => ({
-//       label: book.title,
-//       value: book.id,
-//     }));
-// });
+    .map((book) => ({ label: book.title, value: book.id }))
+);
 
 const editedLoanForm = computed<FormDefinition<Loan>>(() => ({
   ...loanForm,
@@ -65,15 +47,15 @@ const editedLoanForm = computed<FormDefinition<Loan>>(() => ({
 
 const { openFormDialog } = useFormDialog();
 
-function openDialog(data: Loan): void {
+function openDialog(data?: Loan): void {
   openFormDialog({
     definition: editedLoanForm.value,
-    modelValue: data,
+    modelValue: data ?? new Loan(),
     onSave: async (content) => {
       await store.saveEntity({ ...content, ownerId: loggedUser!.id });
     },
     mode: data ? 'view' : 'create',
-    header: data ? `Detail výpujčky: ${data.id}` : 'Nová výpujčka',
+    header: data ? `Detail výpujčky: ${(data as Loan).id}` : 'Nová výpujčka',
   });
 }
 
@@ -92,50 +74,93 @@ function markAsReturned(loan: ExtendedLoan): void {
   if (!loan) return;
   store.saveEntity({ ...loan, isReturned: true });
 }
+
+const activeTab = ref<'active' | 'archived'>('active');
 </script>
 
 <template>
-  <h1 class="font-bold">Výpujčky</h1>
+  <div class="grid gap-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <h1 class="text-2xl font-bold text-surface-800">Výpujčky</h1>
+      <Button
+        label="Nová výpujčka"
+        icon="pi pi-plus"
+        size="small"
+        class="self-start"
+        @click="openDialog()"
+      />
+    </div>
 
-  <Tabs value="0">
-    <TabList>
-      <Tab
-        v-for="tab in getTabsDefinition(activeLoans, archivedLoans)"
-        :key="tab.title"
-        :value="tab.value"
+    <!-- Tabs -->
+    <div class="flex gap-2">
+      <button
+        @click="activeTab = 'active'"
+        class="px-4 py-2 rounded-lg text-sm font-medium transition-all border"
+        :class="
+          activeTab === 'active'
+            ? 'bg-primary-500 text-white border-primary-500'
+            : 'bg-surface-0 text-surface-600 border-surface-200 hover:bg-surface-50'
+        "
       >
-        <div class="flex gap-2 items-center">
-          <i :class="tab.icon" :key="tab.icon"></i>
-          <p>
-            {{ tab.title }}
-          </p>
-        </div>
-      </Tab>
-    </TabList>
-    <TabPanels>
-      <TabPanel
-        v-for="tab in getTabsDefinition(activeLoans, archivedLoans)"
-        :key="tab.title"
-        :value="tab.value"
-      >
-        <Table
-          :columns="TABLE_DEFINITION"
-          :items="tab.content"
-          :handle-detail="openDialog"
-          :handle-delete="deleteLoan"
-          :display-detail-only="tab.value === '1'"
+        <i class="pi pi-calendar-plus mr-1.5"></i>
+        Aktivní
+        <span
+          v-if="activeLoans.length"
+          class="ml-1.5 text-xs px-1.5 py-0.5 rounded-full"
+          :class="activeTab === 'active' ? 'bg-white/25 text-white' : 'bg-primary-100 text-primary-700'"
         >
-          <template #action-column="{ row }">
-            <Button
-              v-if="!row.isReturned"
-              @click="markAsReturned(row)"
-              icon="pi pi-check"
-              size="small"
-              outlined
-            />
-          </template>
-        </Table>
-      </TabPanel>
-    </TabPanels>
-  </Tabs>
+          {{ activeLoans.length }}
+        </span>
+      </button>
+      <button
+        @click="activeTab = 'archived'"
+        class="px-4 py-2 rounded-lg text-sm font-medium transition-all border"
+        :class="
+          activeTab === 'archived'
+            ? 'bg-primary-500 text-white border-primary-500'
+            : 'bg-surface-0 text-surface-600 border-surface-200 hover:bg-surface-50'
+        "
+      >
+        <i class="pi pi-history mr-1.5"></i>
+        Vrácené
+      </button>
+    </div>
+
+    <!-- Active loans card grid -->
+    <template v-if="activeTab === 'active'">
+      <div v-if="activeLoans.length === 0" class="text-center py-12 text-surface-400">
+        <i class="pi pi-check-circle text-4xl mb-3 block text-surface-200"></i>
+        <p>Žádné aktivní výpujčky.</p>
+      </div>
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <LoanCard
+          v-for="loan in activeLoans"
+          :key="loan.id"
+          :loan="loan"
+          @detail="openDialog(loan as unknown as Loan)"
+          @delete="deleteLoan(loan)"
+          @mark-returned="markAsReturned(loan)"
+        />
+      </div>
+    </template>
+
+    <!-- Archived loans card grid -->
+    <template v-if="activeTab === 'archived'">
+      <div v-if="archivedLoans.length === 0" class="text-center py-12 text-surface-400">
+        <i class="pi pi-inbox text-4xl mb-3 block text-surface-200"></i>
+        <p>Žádné vrácené výpujčky.</p>
+      </div>
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <LoanCard
+          v-for="loan in archivedLoans"
+          :key="loan.id"
+          :loan="loan"
+          @detail="openDialog(loan as unknown as Loan)"
+          @delete="deleteLoan(loan)"
+          @mark-returned="markAsReturned(loan)"
+        />
+      </div>
+    </template>
+  </div>
 </template>

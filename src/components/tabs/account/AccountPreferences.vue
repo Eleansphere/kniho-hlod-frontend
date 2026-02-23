@@ -1,38 +1,87 @@
 <script setup lang="ts">
-const neco = 0;
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useNotification } from '@/composables/use-notification';
+
+const { t } = useI18n();
+const { showSaveSuccess } = useNotification();
+
+const timezone = ref(localStorage.getItem('timezone') ?? 'Europe/Prague');
+
+const notifications = ref({
+  news: true,
+  loanExpiry: true,
+  security: true,
+});
+
+const timezoneOptions = [
+  { label: 'Praha (UTC+1)', value: 'Europe/Prague' },
+  { label: 'Londýn (UTC+0)', value: 'Europe/London' },
+  { label: 'New York (UTC-5)', value: 'America/New_York' },
+];
+
+function savePreferences() {
+  localStorage.setItem('timezone', timezone.value);
+  showSaveSuccess(t('common.save'), t('account.savePreferences'));
+}
 </script>
 
 <template>
-  <div class="grid gap-3">
-    <div class="col-12 md:col-6">
-      <label class="block font-medium mb-2">Jazyk</label>
-      <Dropdown optionLabel="label" optionValue="value" :modelValue="'cs'" fluid />
+  <div class="grid gap-5">
+    <!-- Timezone -->
+    <div>
+      <label class="block text-surface-700 font-medium mb-1.5 text-sm">{{ t('account.timezone') }}</label>
+      <Select
+        v-model="timezone"
+        :options="timezoneOptions"
+        option-label="label"
+        option-value="value"
+        fluid
+      />
     </div>
-    <div class="col-12 md:col-6">
-      <label class="block font-medium mb-2">Časová zóna</label>
-      <Dropdown optionLabel="label" optionValue="value" :modelValue="'Europe/Prague'" fluid />
-    </div>
-    <div class="col-12">
-      <label class="block font-medium mb-2">E-mailová oznámení</label>
-      <div class="flex flex-column gap-2">
-        <div class="flex align-items-center">
-          <Checkbox inputId="notifications1" :modelValue="true" />
-          <label for="notifications1" class="ml-2">Oznámení o novinkách</label>
-        </div>
-        <div class="flex align-items-center">
-          <Checkbox inputId="notifications2" :modelValue="false" />
-          <label for="notifications2" class="ml-2">Oznámení o vypršení výpujčky</label>
-        </div>
-        <div class="flex align-items-center">
-          <Checkbox inputId="notifications3" :modelValue="true" />
-          <label for="notifications3" class="ml-2">
-            Bezpečnostní upozornění (změna hesla atd.)
-          </label>
-        </div>
+
+    <!-- Notifications -->
+    <div>
+      <p class="text-surface-700 font-medium text-sm mb-3">{{ t('account.notifications') }}</p>
+      <div class="grid gap-3">
+        <label
+          class="flex items-center justify-between p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors"
+        >
+          <div>
+            <p class="text-surface-700 text-sm font-medium">{{ t('account.notifNews') }}</p>
+            <p class="text-surface-400 text-xs">{{ t('account.notifNewsDesc') }}</p>
+          </div>
+          <ToggleSwitch v-model="notifications.news" />
+        </label>
+
+        <label
+          class="flex items-center justify-between p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors"
+        >
+          <div>
+            <p class="text-surface-700 text-sm font-medium">{{ t('account.notifLoanExpiry') }}</p>
+            <p class="text-surface-400 text-xs">{{ t('account.notifLoanExpiryDesc') }}</p>
+          </div>
+          <ToggleSwitch v-model="notifications.loanExpiry" />
+        </label>
+
+        <label
+          class="flex items-center justify-between p-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 transition-colors"
+        >
+          <div>
+            <p class="text-surface-700 text-sm font-medium">{{ t('account.notifSecurity') }}</p>
+            <p class="text-surface-400 text-xs">{{ t('account.notifSecurityDesc') }}</p>
+          </div>
+          <ToggleSwitch v-model="notifications.security" />
+        </label>
       </div>
     </div>
-  </div>
-  <div class="flex justify-content-end mt-4">
-    <Button label="Uložit předvolby" icon="pi pi-save" />
+
+    <div class="flex justify-end">
+      <Button
+        :label="t('account.savePreferences')"
+        icon="pi pi-check"
+        @click="savePreferences"
+      />
+    </div>
   </div>
 </template>

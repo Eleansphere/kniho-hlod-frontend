@@ -35,9 +35,10 @@ async function handleAuthorization(): Promise<void> {
 }
 
 const dialog = usePreferredDialog();
+let registrationDialogRef: ReturnType<typeof dialog.open> | null = null;
 
 function openRegistrationDialog(data: User): void {
-  dialog.open(
+  registrationDialogRef = dialog.open(
     GenericForm,
     {
       definition: registrationForm,
@@ -50,7 +51,7 @@ function openRegistrationDialog(data: User): void {
     {
       modal: true,
       header: 'Registrace nového uživatele',
-      style: { width: '500px' },
+      dialogSize: 'form',
     }
   );
 }
@@ -66,7 +67,7 @@ async function handleRegistration(data: User): Promise<void> {
       'Registrace úspěšná',
       `Uživatel ${formData.value.username} byl úspěšně zaregistrován.`
     );
-    dialog.close();
+    registrationDialogRef?.close();
   } catch (error) {
     showSaveError(
       'Chyba při registraci',
@@ -79,64 +80,64 @@ async function handleRegistration(data: User): Promise<void> {
 </script>
 
 <template>
-  <div class="flex items-end justify-center min-h-dvh bg-hlod bg-cover bg-bottom bg-no-repeat">
-    <div
-      class="bg-surface-50 dark:bg-surface-900 p-6 shadow rounded-border w-full lg:w-5/12 mx-auto mb-8"
-    >
-      <div class="text-center mb-8">
-        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Kniho-hlod</div>
-        <span class="text-surface-600 dark:text-surface-200 font-medium leading-normal">
-          Nemáte účet?
-        </span>
-        <a
-          class="font-medium no-underline ml-2 text-primary cursor-pointer"
-          @click="() => openRegistrationDialog(new User())"
-        >
-          Vytvořte si účet!
-        </a>
-      </div>
-
-      <div>
-        <label for="email" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">
-          Email
-        </label>
-        <InputText
-          id="email"
-          v-model="userData.email"
-          type="text"
-          placeholder="Email address"
-          class="w-full mb-4"
-        />
-
-        <label for="password" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">
-          Heslo
-        </label>
-        <InputText
-          id="password"
-          v-model="userData.password"
-          type="password"
-          placehoder="Password"
-          class="w-full mb-4"
-          @keyup.enter="handleAuthorization"
-        />
-        <!-- <div class="flex items-center justify-between mb-8">
-          <div class="flex items-center">
-            <Checkbox id="rememberme1" v-model="checked1" :binary="true" class="mr-2" />
-            <label for="rememberme1">Remember me</label>
+  <div class="flex items-center justify-center min-h-dvh bg-hlod bg-cover bg-center bg-no-repeat">
+    <div class="w-full max-w-md mx-4">
+      <div class="bg-surface-0 rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-surface-800 px-8 py-8 text-center">
+          <div class="flex justify-center mb-3">
+            <div class="w-16 h-16 bg-primary-500/20 rounded-full flex items-center justify-center">
+              <i class="pi pi-book text-primary-300 text-3xl"></i>
+            </div>
           </div>
-          <a class="font-medium no-underline ml-2 text-primary text-right cursor-pointer">
-            Forgot password?
-          </a>
-        </div> -->
+          <h1 class="text-surface-0 text-3xl font-bold tracking-wide mb-1">Kniho-hlod</h1>
+          <p class="text-surface-400 text-sm">Přehled tvých zapůjčených knih</p>
+        </div>
 
-        <Button
-          label="Přihlásit se"
-          @click="handleAuthorization"
-          icon="pi pi-lock !text-xl !leading-none"
-          fluid
-          :disabled="isProcessing"
-          :loading="isProcessing"
-        />
+        <!-- Form -->
+        <div class="px-8 py-8">
+          <div class="mb-5">
+            <label for="email" class="block text-surface-700 font-medium mb-2 text-sm">Email</label>
+            <InputText
+              id="email"
+              v-model="userData.email"
+              type="text"
+              placeholder="vas@email.cz"
+              class="w-full"
+            />
+          </div>
+
+          <div class="mb-6">
+            <label for="password" class="block text-surface-700 font-medium mb-2 text-sm">Heslo</label>
+            <InputText
+              id="password"
+              v-model="userData.password"
+              type="password"
+              placeholder="••••••••"
+              class="w-full"
+              @keyup.enter="handleAuthorization"
+            />
+          </div>
+
+          <Button
+            label="Přihlásit se"
+            @click="handleAuthorization"
+            icon="pi pi-sign-in"
+            fluid
+            :disabled="isProcessing"
+            :loading="isProcessing"
+          />
+
+          <div class="text-center mt-5 text-sm">
+            <span class="text-surface-500">Nemáte účet?</span>
+            <a
+              class="ml-2 text-primary-500 font-semibold cursor-pointer hover:text-primary-600 hover:underline"
+              @click="() => openRegistrationDialog(new User())"
+            >
+              Vytvořte si účet!
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
