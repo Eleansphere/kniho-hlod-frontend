@@ -93,7 +93,9 @@ async function handleRegistration(data: User): Promise<void> {
               <i class="pi pi-book text-primary-300 text-3xl"></i>
             </div>
           </div>
-          <h1 class="text-surface-0 text-3xl font-bold tracking-wide mb-1">{{ t('login.title') }}</h1>
+          <h1 class="text-surface-0 text-3xl font-bold tracking-wide mb-1">
+            {{ t('login.title') }}
+          </h1>
           <p class="text-surface-400 text-sm">{{ t('login.subtitle') }}</p>
         </div>
 
@@ -103,13 +105,7 @@ async function handleRegistration(data: User): Promise<void> {
             <label for="email" class="block text-surface-700 font-medium mb-2 text-sm">
               {{ t('login.email') }}
             </label>
-            <InputText
-              id="email"
-              v-model="userData.email"
-              type="text"
-              :placeholder="t('login.emailPlaceholder')"
-              class="w-full"
-            />
+            <InputText id="email" v-model="userData.email" type="text" class="w-full" />
           </div>
 
           <div class="mb-6">

@@ -28,7 +28,7 @@ export default {
   },
   overview: {
     welcome: 'Welcome, {name} 👋',
-    subtitle: "Your library at a glance",
+    subtitle: 'Your library at a glance',
     statBooks: 'Total books',
     statActiveLoans: 'Active loans',
     statOverdue: 'Overdue',
@@ -123,7 +123,7 @@ export default {
     subtitle: 'Track your borrowed books',
     email: 'Email',
     password: 'Password',
-    emailPlaceholder: 'your@email.com',
+    emailPlaceholder: 'your@emailLL.com',
     passwordPlaceholder: '••••••••',
     submit: 'Log in',
     noAccount: "Don't have an account?",
@@ -145,4 +145,4 @@ export default {
   topbar: {
     toggleDark: 'Toggle dark mode',
   },
-}
+};
